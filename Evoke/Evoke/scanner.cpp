@@ -5,7 +5,9 @@ const std::unordered_map<std::string, TokenType> Scanner::keywords = {
 	{"var", VAR},
 	{"print", PRINT},
 	{"[]", ARRAY},
-	{"input", INPUT}
+	{"input", INPUT},
+	{"true", TRUE},
+	{"false", FALSE}
 };
 
 Scanner::Scanner(std::string source) : source(source), start(0), current(0), line(1), currentOnLine(0) {}
@@ -72,7 +74,7 @@ void Scanner::scanToken()
 	case '>':
 		if (match('='))
 			addToken(GREATER_EQUAL, Value());
-		else if (match('>>'))
+		else if (match('>'))
 			addToken(GREATER_GREATER, Value());
 		else
 			addToken(GREATER, Value());
@@ -185,16 +187,23 @@ void Scanner::handleIdentifier()
 		advance();
 
 	int length = getLength(start, current);
+	Value val = Value();
 	TokenType type;
 	std::string text = source.substr(start, length);
 
 	//	if keyword is in map/exists in the language
 	if (keywords.find(text) != keywords.end())
+	{
 		type = keywords.at(text);
+		if (type == TRUE)
+			val = Value(true);
+		else if (type == FALSE)
+			val = Value(false);
+	}
 	else
 		type = IDENTIFIER;
 
-	addToken(type, Value());
+	addToken(type, val);
 }
 
 // scanner.cpp
@@ -222,6 +231,10 @@ void Scanner::handleString() {
 	int length = getLength(start + 1, current - 1);
 	std::string value = source.substr(start + 1, length);
 	addToken(STRING_LITERAL, Value(value));
+}
+
+void Scanner::handleBool()
+{
 }
 
 int Scanner::getLength(int start, int current)

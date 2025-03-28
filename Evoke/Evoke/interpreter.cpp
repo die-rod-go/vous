@@ -66,6 +66,7 @@ void Interpreter::visit(const BinaryExpr& expr) const
 		currentResult = Value(double(int(left.getDouble()) % int(right.getDouble())));
 		break;
 	case PLUS:
+		checkAddableOperands(expr.op, left, right);
 		currentResult = addValues(left, right);
 		break;
 	case GREATER:
@@ -85,8 +86,7 @@ void Interpreter::visit(const BinaryExpr& expr) const
 		currentResult = Value(left.getDouble() <= right.getDouble());
 		break;
 	case BANG_EQUAL:
-		checkNumberOperands(expr.op, left, right);
-		currentResult = Value(left.getDouble() != right.getDouble());
+		currentResult = !areValuesEqual(left, right);
 		break;
 	case EQUAL_EQUAL:
 		currentResult = areValuesEqual(left, right);
@@ -197,6 +197,24 @@ void Interpreter::checkNumberOperands(Token op, Value left, Value right) const
 	throw RuntimeError(op, "Operands must be numbers.");
 }
 
+void Interpreter::checkAddableOperands(Token op, Value left, Value right) const
+{
+	if(left.getType() != right.getType())
+		throw::RuntimeError(op, "Type mismatch. Types must match.");
+
+	switch (left.getType())
+	{
+	case Type::DOUBLE:
+		return;
+		break;
+	case Type::STRING:
+		return;
+		break;
+	}
+
+	throw::RuntimeError(op, "Operands must be numbers or strings.");
+}
+
 bool Interpreter::areValuesEqual(Value left, Value right) const
 {
 	if (left.getType() != right.getType())
@@ -204,6 +222,8 @@ bool Interpreter::areValuesEqual(Value left, Value right) const
 
 	if (left.getType() == Type::DOUBLE)
 		return left.getDouble() == right.getDouble();
+	if (left.getType() == Type::BOOLEAN)
+		return left.getBool() == right.getBool();
 	return left.getString() == right.getString();
 }
 
@@ -211,8 +231,10 @@ Value Interpreter::addValues(Value left, Value right) const
 {
 	if (left.getType() != right.getType())
 		throw::RuntimeError(Token(), "Type mismatch. Types must match.");
+
 	if (left.getType() == Type::DOUBLE)
 		return Value(left.getDouble() + right.getDouble());
+
 	return Value(left.getString() + right.getString());
 }
 

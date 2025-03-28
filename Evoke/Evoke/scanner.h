@@ -34,11 +34,9 @@ private:
 	char peekNext();
 
 	void handleDigit();
-	void handleByteLiteral();
 	void handleIdentifier();
 	void handleString();
-
-	Value binaryStringToValue(const std::string& binaryString);
+	void handleBool();
 
 	int getLength(int start, int current);
 

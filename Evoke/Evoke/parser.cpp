@@ -197,7 +197,7 @@ std::unique_ptr<Expr> Parser::unary()
 
 std::unique_ptr<Expr> Parser::primary()
 {
-	if (match({ NUMBER_LITERAL, STRING_LITERAL }))
+	if (match({ NUMBER_LITERAL, STRING_LITERAL, TRUE, FALSE }))
 		return std::make_unique<LiteralExpr>(previous());
 
 	if (match({ IDENTIFIER }))
