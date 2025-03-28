@@ -199,7 +199,7 @@ std::unique_ptr<Expr> Parser::factor()
 
 std::unique_ptr<Expr> Parser::unary()
 {
-	if (match({ MINUS }))
+	if (match({ MINUS, BANG }))
 	{
 		Token op = previous();
 		auto right = unary();

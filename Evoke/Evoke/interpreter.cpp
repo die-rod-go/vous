@@ -32,6 +32,10 @@ void Interpreter::visit(const UnaryExpr& expr) const
 		checkNumberOperand(expr.op, right);
 		currentResult = Value(-right.getDouble());
 		break;
+	case (BANG):
+		checkBoolOperands(expr.op, right, right);
+		currentResult = Value(!right.getBool());
+		break;
 	}
 }
 
@@ -67,7 +71,7 @@ void Interpreter::visit(const BinaryExpr& expr) const
 		break;
 	case PLUS:
 		checkAddableOperands(expr.op, left, right);
-		currentResult = addValues(left, right);
+		currentResult = addValues(expr.op, left, right);
 		break;
 	case GREATER:
 		checkNumberOperands(expr.op, left, right);
@@ -207,9 +211,6 @@ void Interpreter::checkNumberOperands(Token op, Value left, Value right) const
 
 void Interpreter::checkAddableOperands(Token op, Value left, Value right) const
 {
-	if(left.getType() != right.getType())
-		throw::RuntimeError(op, "Type mismatch. Types must match.");
-
 	switch (left.getType())
 	{
 	case Type::DOUBLE:
@@ -230,6 +231,11 @@ void Interpreter::checkBoolOperands(Token op, Value left, Value right) const
 	throw RuntimeError(op, "Operands must be booleans.");
 }
 
+void Interpreter::checkBangableOperands(Token op, Value left, Value right) const
+{
+
+}
+
 bool Interpreter::areValuesEqual(Value left, Value right) const
 {
 	if (left.getType() != right.getType())
@@ -242,8 +248,11 @@ bool Interpreter::areValuesEqual(Value left, Value right) const
 	return left.getString() == right.getString();
 }
 
-Value Interpreter::addValues(Value left, Value right) const
+Value Interpreter::addValues(Token op, Value left, Value right) const
 {
+	if (left.getType() != right.getType())
+		throw::RuntimeError(op, "Type mismatch. Types must match.");
+
 	if (left.getType() != right.getType())
 		throw::RuntimeError(Token(), "Type mismatch. Types must match.");
 
