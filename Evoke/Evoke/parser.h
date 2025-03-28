@@ -4,7 +4,7 @@
 #include <exception>
 #include "token.h"
 #include "expr.h"
-#include "pulse.h"
+#include "vous.h"
 #include "stmt.h"
 
 class ParseError : public std::exception {
@@ -33,7 +33,6 @@ private:
 	std::unique_ptr<Stmt> statement();
 	std::unique_ptr<Stmt> printStatement();
 	std::unique_ptr<Stmt> expressionStatement();
-	std::unique_ptr<Stmt> evokeStatement();
 
 	std::unique_ptr<Expr> expression();
 	std::unique_ptr<Expr> assignment();

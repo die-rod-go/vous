@@ -24,7 +24,7 @@
     <ClCompile Include="token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pulse.cpp">
+    <ClCompile Include="vous.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ASTPrinter.cpp">
@@ -50,7 +50,7 @@
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pulse.h">
+    <ClInclude Include="vous.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="expr.h">

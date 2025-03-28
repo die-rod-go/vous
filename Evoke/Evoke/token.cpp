@@ -15,14 +15,14 @@ const std::unordered_map<TokenType, std::string> Token::enumStrings = {
 	{AND, "AND"}, {AND_AND, "AND_AND"},
 	{PIPE, "PIPE"}, {PIPE_PIPE, "PIPE_PIPE"},
 	{QUESTION, "QUESTION"}, {QUESTION_QUESTION, "QUESTION_QUESTION"},
-	{IDENTIFIER, "IDENTIFIER"}, {BYTE_LITERAL, "BYTE_LITERAL"}, {STRING_LITERAL, "STRING_LITERAL"},
-	{EMIT, "EMIT"}, {CLEAR, "CLEAR"}, {VAR, "VAR"}, {ARRAY, "ARRAY"}, {PRINT, "PRINT"}, {INPUT, "INPUT"},
+	{IDENTIFIER, "IDENTIFIER"}, {NUMBER_LITERAL, "BYTE_LITERAL"}, {STRING_LITERAL, "STRING_LITERAL"},
+	{VAR, "VAR"}, {ARRAY, "ARRAY"}, {PRINT, "PRINT"}, {INPUT, "INPUT"},
 	{END_OF_FILE, "END_OF_FILE"},
 	{NONE, "NONE"}
 };
 
 Token::Token()
-	: type(TokenType::NONE), lexeme(""), literal(byte(0)), line(-1) {}
+	: type(TokenType::NONE), lexeme(""), literal(double(0)), line(-1) {}
 
 Token::Token(TokenType type, const std::string& lexeme, Value literal, int line)
 	: type(type), lexeme(lexeme), literal(literal), line(line) {}

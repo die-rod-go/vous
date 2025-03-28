@@ -23,10 +23,10 @@ enum TokenType {
 	QUESTION, QUESTION_QUESTION, // ? ??
 
 	// Literals.
-	IDENTIFIER, BYTE_LITERAL, STRING_LITERAL,
+	IDENTIFIER, NUMBER_LITERAL, STRING_LITERAL,
 
 	// Keywords.
-	EMIT, CLEAR, VAR, ARRAY, PRINT, INPUT,
+	VAR, ARRAY, PRINT, INPUT,
 
 	END_OF_FILE,
 
@@ -37,6 +37,7 @@ class Token {
 public:
 	Token();
 	Token(TokenType type, const std::string& lexeme, Value literal, int line);
+
 	TokenType type;
 	std::string lexeme;
 	Value literal;

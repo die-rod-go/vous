@@ -2,8 +2,6 @@
 #include <bitset>
 
 const std::unordered_map<std::string, TokenType> Scanner::keywords = {
-	{"emit", EMIT},
-	{"clear", CLEAR},
 	{"var", VAR},
 	{"print", PRINT},
 	{"[]", ARRAY},
@@ -114,18 +112,13 @@ void Scanner::scanToken()
 		break;
 	case '"':
 		handleString(); break;
-	case '0':
-		if (match('b'))
-		{
-			handleByteLiteral();
-		}
 	default:
 		if (isdigit(c))
 			handleDigit();
 		else if (isalpha(c) || c == '_')
 			handleIdentifier();
 		else
-			Pulse::error(line, "Unexpected character: '" + std::string(1, c) + "'" + "at: " + std::to_string(currentOnLine));
+			Vous::error(line, "Unexpected character: '" + std::string(1, c) + "'" + "at: " + std::to_string(currentOnLine));
 	}
 }
 
@@ -169,50 +162,21 @@ char Scanner::peekNext()
 	return source[current + 1];
 }
 
-void Scanner::handleByteLiteral()
-{
-	//	skip the 0b. only used to calculate the literal value, not the lexeme
-	int bitStart = start + 2;
-
-	//	could replace with "while (match('0') || match('1')) {}" but this felt less smelly
-	while (peek() == '0' || peek() == '1')
-		advance();
-
-	int bitLength = getLength(bitStart, current);
-
-	//	if the bit length is not exactly 8, report an error
-	if (bitLength != 8) {
-		Pulse::error(line, "Invalid byte literal. Expected 8 bits, got: " + std::to_string(bitLength));
-		return;
-	}
-
-	//	extract only the 8-bit sequence (excluding "0b")
-	std::string bitString = source.substr(bitStart, bitLength);
-
-	//	convert and add the byte literal
-	Value literal = binaryStringToValue(bitString);
-	addToken(BYTE_LITERAL, literal);
-}
-
 void Scanner::handleDigit()
 {
 	while (isdigit(peek()))
 		advance();
-	int numLength = getLength(start, current);
 
-	//	extract num as string
-	std::string numString = source.substr(start, numLength);
-	byte numAsByte = std::stoi(numString);
-	addToken(BYTE_LITERAL, Value(numAsByte));
-}
-
-Value Scanner::binaryStringToValue(const std::string& binaryString)
-{
-	if (binaryString.length() != 8) {
-		Pulse::error(line, "Invalid byte literal. Expected 8 bits, got: " + std::to_string(binaryString.length()));
-		return 0;
+	if (peek() == '.' && isdigit(peekNext()))
+	{
+		advance();
+		while (isdigit(peek()))
+			advance();
 	}
-	return Value(static_cast<byte>(std::bitset<8>(binaryString).to_ulong()));
+
+	int length = getLength(start, current);
+	double value = std::stod(source.substr(start, length));
+	addToken(TokenType::NUMBER_LITERAL, Value(value));
 }
 
 void Scanner::handleIdentifier()
@@ -247,7 +211,7 @@ void Scanner::handleString() {
 
 	if (isAtEnd())
 	{
-		Pulse::error(line, "Unterminated string");
+		Vous::error(line, "Unterminated string");
 		return;
 	}
 

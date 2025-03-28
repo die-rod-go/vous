@@ -24,22 +24,19 @@ public:
 	void visit(const InputExpr& expr) const override;
 
 	//	stmts
-	void visit(const ExpressionStmt& stmt, bool evoked) const override;
-	void visit(const PrintStmt& stmt, bool evoked) const override;
-	void visit(const ByteStmt& stmt, bool evoked) const override;
-	void visit(const ArrayStmt& stmt, bool evoked) const override;
-	void visit(const EmitStmt& stmt, bool evoked) const override;
-
-	void emit(const EmitStmt& stmt) const;
+	void visit(const ExpressionStmt& stmt) const override;
+	void visit(const PrintStmt& stmt) const override;
+	void visit(const ByteStmt& stmt) const override;
+	void visit(const ArrayStmt& stmt) const override;
 
 private:
-	void execute(const Stmt& stmt, bool evoked) const;
+	void execute(const Stmt& stmt) const;
 	void evaluate(const Expr& expr) const;
 	void checkNumberOperand(Token op, Value operand) const;
 	void checkNumberOperands(Token op, Value left, Value right) const;
 	bool areValuesEqual(Value left, Value right) const;
 	Value addValues(Value left, Value right) const;
-	void triggerEvent(const std::string& eventName) const;
+
 	mutable Environment environment;
 	mutable Value currentResult;
 };

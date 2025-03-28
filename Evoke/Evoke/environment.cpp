@@ -40,7 +40,7 @@ Value Environment::getVariable(Token name) const
 		return values.at(name.lexeme);
 	}
 	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
-	return byte();
+	return double();
 }
 
 void Environment::defineArray(const std::string& name)

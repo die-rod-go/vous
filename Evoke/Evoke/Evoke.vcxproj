@@ -24,7 +24,7 @@
     <ProjectGuid>{07024d31-8d45-4e5c-90fb-9d4db8ae91e7}</ProjectGuid>
     <RootNamespace>Evoke</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Pulse</ProjectName>
+    <ProjectName>Vous</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -132,7 +132,7 @@
   <ItemGroup>
     <ClCompile Include="ASTPrinter.cpp" />
     <ClCompile Include="environment.cpp" />
-    <ClCompile Include="pulse.cpp" />
+    <ClCompile Include="vous.cpp" />
     <ClCompile Include="interpreter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parser.cpp" />
@@ -143,7 +143,7 @@
     <ClInclude Include="ASTPrinter.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="errors.h" />
-    <ClInclude Include="pulse.h" />
+    <ClInclude Include="vous.h" />
     <ClInclude Include="interpreter.h" />
     <ClInclude Include="expr.h" />
     <ClInclude Include="parser.h" />

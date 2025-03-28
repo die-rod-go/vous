@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "pulse.h"
+#include "vous.h"
 
 Parser::Parser(std::vector<Token> tokens) : tokens(std::move(tokens)), current(0) {}
 
@@ -14,7 +14,7 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse()
 	}
 	catch (ParseError& error)
 	{
-		Pulse::error(error.token, error.message);
+		Vous::error(error.token, error.message);
 	}
 	return statements;
 }
@@ -34,7 +34,7 @@ std::unique_ptr<Stmt> Parser::declaration()
 	}
 	catch (ParseError error)
 	{
-		Pulse::error(error.token, error.message);
+		Vous::error(error.token, error.message);
 		synchronize();
 		return nullptr;
 	}
@@ -50,26 +50,21 @@ std::unique_ptr<Stmt> Parser::varDeclaration()
 		initializer = expression();
 	}
 
-	consume(COLON, "Expect ':' after variable declaration.");
-	Token subscribedEvent = consume(IDENTIFIER, "Expect event name after ':'.");
 	consume(SEMICOLON, "Expect ';' after variable declaration");
 
-	return std::make_unique<ByteStmt>(subscribedEvent, name, std::move(initializer));
+	return std::make_unique<ByteStmt>(name, std::move(initializer));
 }
 
 std::unique_ptr<Stmt> Parser::arrDeclaration()
 {
 	Token name = consume(IDENTIFIER, "Expect array name.");
-	consume(COLON, "Expect ':' after array declaration.");
-	Token subscribedEvent = consume(IDENTIFIER, "Expect event name after ':'.");
 	consume(SEMICOLON, "Expect ';' after variable declaration");
-	return std::make_unique<ArrayStmt>(subscribedEvent, name);
+	return std::make_unique<ArrayStmt>(name);
 }
 
 std::unique_ptr<Stmt> Parser::statement()
 {
 	if (match({ PRINT })) return printStatement();
-	if (match({ EMIT })) return evokeStatement();
 
 	return expressionStatement();
 }
@@ -77,42 +72,15 @@ std::unique_ptr<Stmt> Parser::statement()
 std::unique_ptr<Stmt> Parser::printStatement()
 {
 	std::unique_ptr<Expr> value = expression();
-	consume(COLON, "Expect ':' after print expression");
-	Token subscribedEvent = consume(IDENTIFIER, "Expect event name after ':'.");
 	consume(SEMICOLON, "Expect ';' after value.");
-	return std::make_unique<PrintStmt>(subscribedEvent, std::move(value));
+	return std::make_unique<PrintStmt>(std::move(value));
 }
 
 std::unique_ptr<Stmt> Parser::expressionStatement()
 {
 	std::unique_ptr<Expr> expr = expression();
-	consume(COLON, "Expect ':' after expression.");
-	Token subscribedEvent = consume(IDENTIFIER, "Expect event name after ':'.");
 	consume(SEMICOLON, "Expect ';' after expression.");
-	return std::make_unique<ExpressionStmt>(subscribedEvent, std::move(expr));
-}
-
-std::unique_ptr<Stmt> Parser::evokeStatement()
-{
-	Token eventName = consume(IDENTIFIER, "Expect event name after 'emit'.");
-	std::unique_ptr<Expr> condition = nullptr;
-
-	Token op;
-	if (match({ QUESTION, QUESTION_QUESTION }))
-	{
-		op = previous();
-		condition = expression();
-	}
-
-	Token subscribedEvent;
-	if (match({ COLON }))
-	{
-		subscribedEvent = consume(IDENTIFIER, "Expect event name after ':'.");
-	}
-
-	consume(SEMICOLON, "Expect ';' after emit statement.");
-
-	return std::make_unique<EmitStmt>(eventName, subscribedEvent, op, std::move(condition));
+	return std::make_unique<ExpressionStmt>(std::move(expr));
 }
 
 std::unique_ptr<Expr> Parser::expression()
@@ -154,7 +122,7 @@ std::unique_ptr<Expr> Parser::assignment()
 			return std::make_unique<AssignmentExpr>(name, std::move(value));
 		}
 
-		Pulse::error(equals, "Invalid assignment target.");
+		Vous::error(equals, "Invalid assignment target.");
 	}
 	return expr;
 }
@@ -217,7 +185,7 @@ std::unique_ptr<Expr> Parser::factor()
 
 std::unique_ptr<Expr> Parser::unary()
 {
-	if (match({ BANG }))
+	if (match({ MINUS }))
 	{
 		Token op = previous();
 		auto right = unary();
@@ -229,7 +197,7 @@ std::unique_ptr<Expr> Parser::unary()
 
 std::unique_ptr<Expr> Parser::primary()
 {
-	if (match({ BYTE_LITERAL, STRING_LITERAL }))
+	if (match({ NUMBER_LITERAL, STRING_LITERAL }))
 		return std::make_unique<LiteralExpr>(previous());
 
 	if (match({ IDENTIFIER }))
@@ -317,8 +285,6 @@ void Parser::synchronize()
 		switch (peek().type)
 		{
 		case VAR:
-		case EMIT:
-		case CLEAR:
 		case IDENTIFIER:
 			return;
 		}
