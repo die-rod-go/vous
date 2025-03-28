@@ -35,6 +35,7 @@ private:
 	void checkNumberOperand(Token op, Value operand) const;
 	void checkNumberOperands(Token op, Value left, Value right) const;
 	void checkAddableOperands(Token op, Value left, Value right) const;
+	void checkBoolOperands(Token op, Value left, Value right) const;
 	bool areValuesEqual(Value left, Value right) const;
 	Value addValues(Value left, Value right) const;
 

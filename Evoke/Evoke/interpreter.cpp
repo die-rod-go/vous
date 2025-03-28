@@ -91,6 +91,14 @@ void Interpreter::visit(const BinaryExpr& expr) const
 	case EQUAL_EQUAL:
 		currentResult = areValuesEqual(left, right);
 		break;
+	case AND_AND:
+		checkBoolOperands(expr.op, left, right);
+		currentResult = left.getBool() && right.getBool();
+		break;
+	case PIPE_PIPE:
+		checkBoolOperands(expr.op, left, right);
+		currentResult = left.getBool() || right.getBool();
+		break;
 	}
 }
 
@@ -213,6 +221,13 @@ void Interpreter::checkAddableOperands(Token op, Value left, Value right) const
 	}
 
 	throw::RuntimeError(op, "Operands must be numbers or strings.");
+}
+
+void Interpreter::checkBoolOperands(Token op, Value left, Value right) const
+{
+	if (left.getType() == Type::BOOLEAN && right.getType() == Type::BOOLEAN)
+		return;
+	throw RuntimeError(op, "Operands must be booleans.");
 }
 
 bool Interpreter::areValuesEqual(Value left, Value right) const

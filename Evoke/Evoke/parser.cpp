@@ -90,7 +90,7 @@ std::unique_ptr<Expr> Parser::expression()
 
 std::unique_ptr<Expr> Parser::assignment()
 {
-	std::unique_ptr<Expr> expr = equality();
+	std::unique_ptr<Expr> expr = logical();
 
 	if (match({ ARROW }))
 	{
@@ -124,6 +124,20 @@ std::unique_ptr<Expr> Parser::assignment()
 
 		Vous::error(equals, "Invalid assignment target.");
 	}
+	return expr;
+}
+
+std::unique_ptr<Expr> Parser::logical()
+{
+	auto expr = equality();
+
+	while (match({ AND_AND, PIPE_PIPE }))
+	{
+		Token op = previous();
+		auto right = equality();
+		expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+	}
+
 	return expr;
 }
 
