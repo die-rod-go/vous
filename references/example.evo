@@ -1,0 +1,17 @@
+//  Evoke (Evo) is a strictly event-driven programming language where every statement and expression is triggered by an event. Execution follows a deterministic order based entirely on event subscription.
+
+// assign x, the power it'll be raised to, and a accumulator for the result
+x = 0b00000000 : assign_variables;
+result = 1 : assign_variables;
+evoke assign_variables;
+
+exponent = 5; : assign_exponent;
+evoke assign_exponent;
+
+// define the multiplication step and decrement step for the exponent
+result = result * x : exp_x;
+exponent = exponent - 1 : exp_x;
+
+// trigger mult_x for as long as exponent > 0;
+evoke exp_x ? exponent > 0;
+

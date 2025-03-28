@@ -1,0 +1,37 @@
+Program         = { Statement } ;
+
+Statement       = VariableDeclaration | PrintStatement | ExpressionStatement | EvokeStatement ;
+
+VariableDeclaration = "byte" Identifier "=" Expression ":" EventName ";" ;
+
+PrintStatement  = "print" Expression ":" EventName ";" ;
+
+ExpressionStatement = Expression ":" EventName ";" ;
+
+Assignment      = Identifier "=" Expression ":" EventName ";" ;
+
+EvokeStatement  = "evoke" EventName [ "?" Expression | "??" Expression ] ";" ;
+
+Expression      = Equality ;
+
+Equality        = Comparison { ("==" | "!=") Comparison } ;
+
+Comparison      = Term { (">" | ">=" | "<" | "<=") Term } ;
+
+Term            = Factor { ("+" | "-") Factor } ;
+
+Factor          = Unary { ("*" | "/") Unary } ;
+
+Unary           = ("!") Unary | Primary ;
+
+Primary         = Number | Identifier | "(" Expression ")" ;
+
+Number          = Digit { Digit } ;
+
+Identifier      = Letter { Letter | Digit | "_" } ;
+
+EventName       = Identifier ;
+
+Letter          = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z" ;
+
+Digit           = "0" | "1" | ... | "9" ;
