@@ -14,7 +14,6 @@ public:
 	virtual void visit(const class ArrayAccessExpr& expr) const = 0;
 	virtual void visit(const class ArraySetExpr& expr) const = 0;
 	virtual void visit(const class InputExpr& expr) const = 0;
-
 };
 
 class Expr
@@ -22,7 +21,6 @@ class Expr
 public:
 	virtual ~Expr() = default;
 	virtual void accept(const ExprVisitor& visitor) const = 0;
-	virtual std::unique_ptr<Expr> clone() const = 0;
 };
 
 class UnaryExpr : public Expr
@@ -37,10 +35,6 @@ public:
 	void accept(const ExprVisitor& visitor) const override
 	{
 		visitor.visit(*this);
-	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<UnaryExpr>(op, operand ? operand->clone() : nullptr);
 	}
 };
 
@@ -58,10 +52,6 @@ public:
 	{
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<BinaryExpr>(left ? left->clone() : nullptr, op, right ? right->clone() : nullptr);
-	}
 };
 
 class GroupingExpr : public Expr
@@ -75,10 +65,6 @@ public:
 	{
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<GroupingExpr>(expr ? expr->clone() : nullptr);
-	}
 };
 
 class LiteralExpr : public Expr
@@ -90,10 +76,6 @@ public:
 	{
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<LiteralExpr>(literal);
-	}
 };
 
 class VariableExpr : public Expr
@@ -104,10 +86,6 @@ public:
 	void accept(const ExprVisitor& visitor) const override
 	{
 		visitor.visit(*this);
-	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<VariableExpr>(name);
 	}
 };
 
@@ -124,10 +102,6 @@ public:
 	{
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<AssignmentExpr>(name, value ? value->clone() : nullptr);
-	}
 };
 
 class ArrayPushExpr : public Expr {
@@ -141,10 +115,6 @@ public:
 	{
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<ArrayPushExpr>(name, value ? value->clone() : nullptr);
-	}
 };
 
 class ArrayAccessExpr : public Expr {
@@ -157,10 +127,6 @@ public:
 	void accept(const ExprVisitor& visitor) const override
 	{
 		visitor.visit(*this);
-	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<ArrayAccessExpr>(name, index ? index->clone() : nullptr);
 	}
 };
 
@@ -177,10 +143,6 @@ public:
 	{
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<ArraySetExpr>(name, index ? index->clone() : nullptr, value ? value->clone() : nullptr);
-	}
 };
 
 class InputExpr : public Expr {
@@ -190,9 +152,5 @@ public:
 	void accept(const ExprVisitor& visitor) const override
 	{
 		visitor.visit(*this);
-	}
-
-	std::unique_ptr<Expr> clone() const override {
-		return std::make_unique<InputExpr>();
 	}
 };

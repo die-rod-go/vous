@@ -195,21 +195,21 @@ void Interpreter::evaluate(const Expr& expr) const
 	expr.accept(*this);
 }
 
-void Interpreter::checkNumberOperand(Token op, Value operand) const
+void Interpreter::checkNumberOperand(const Token& op, const Value& operand) const
 {
 	if (operand.getType() == Type::DOUBLE)
 		return;
 	throw RuntimeError(op, "Operand must be a number");
 }
 
-void Interpreter::checkNumberOperands(Token op, Value left, Value right) const
+void Interpreter::checkNumberOperands(const Token& op, const Value& left, const Value& right) const
 {
 	if (left.getType() == Type::DOUBLE && right.getType() == Type::DOUBLE)
 		return;
 	throw RuntimeError(op, "Operands must be numbers.");
 }
 
-void Interpreter::checkAddableOperands(Token op, Value left, Value right) const
+void Interpreter::checkAddableOperands(const Token& op, const Value& left, const Value& right) const
 {
 	switch (left.getType())
 	{
@@ -224,19 +224,14 @@ void Interpreter::checkAddableOperands(Token op, Value left, Value right) const
 	throw::RuntimeError(op, "Operands must be numbers or strings.");
 }
 
-void Interpreter::checkBoolOperands(Token op, Value left, Value right) const
+void Interpreter::checkBoolOperands(const Token& op, const Value& left, const Value& right) const
 {
 	if (left.getType() == Type::BOOLEAN && right.getType() == Type::BOOLEAN)
 		return;
 	throw RuntimeError(op, "Operands must be booleans.");
 }
 
-void Interpreter::checkBangableOperands(Token op, Value left, Value right) const
-{
-
-}
-
-bool Interpreter::areValuesEqual(Value left, Value right) const
+bool Interpreter::areValuesEqual(const Value& left, const Value& right) const
 {
 	if (left.getType() != right.getType())
 		return false;
@@ -248,7 +243,7 @@ bool Interpreter::areValuesEqual(Value left, Value right) const
 	return left.getString() == right.getString();
 }
 
-Value Interpreter::addValues(Token op, Value left, Value right) const
+Value Interpreter::addValues(const Token& op, const Value& left, const Value& right) const
 {
 	if (left.getType() != right.getType())
 		throw::RuntimeError(op, "Type mismatch. Types must match.");

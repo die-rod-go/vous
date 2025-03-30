@@ -32,13 +32,12 @@ public:
 private:
 	void execute(const Stmt& stmt) const;
 	void evaluate(const Expr& expr) const;
-	void checkNumberOperand(Token op, Value operand) const;
-	void checkNumberOperands(Token op, Value left, Value right) const;
-	void checkAddableOperands(Token op, Value left, Value right) const;
-	void checkBoolOperands(Token op, Value left, Value right) const;
-	void checkBangableOperands(Token op, Value left, Value right) const;
-	bool areValuesEqual(Value left, Value right) const;
-	Value addValues(Token op, Value left, Value right) const;
+	void checkNumberOperand(const Token& op, const Value& operand) const;
+	void checkNumberOperands(const Token& op, const Value& left, const Value& right) const;
+	void checkAddableOperands(const Token& op, const Value& left, const Value& right) const;
+	void checkBoolOperands(const Token& op, const Value& left, const Value& right) const;
+	bool areValuesEqual(const Value& left, const Value& right) const;
+	Value addValues(const Token& op, const Value& left, const Value& right) const;
 
 	mutable Environment environment;
 	mutable Value currentResult;

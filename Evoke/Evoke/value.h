@@ -42,7 +42,7 @@ public:
 	void setValue(const std::string& v) { value = value; }
 	void setValue(bool value) { value = value; }
 
-	Type getType() {
+	Type getType() const {
 		if (std::holds_alternative<double>(value))
 			return Type::DOUBLE;
 		else if (std::holds_alternative<bool>(value))

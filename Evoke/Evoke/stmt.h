@@ -14,7 +14,6 @@ class Stmt {
 public:
 	virtual ~Stmt() = default;
 	virtual void accept(const StmtVisitor& visitor) const = 0;
-	virtual std::unique_ptr<Stmt> clone() const = 0;
 };
 
 class PrintStmt : public Stmt {
@@ -27,10 +26,6 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Stmt> clone() const override {
-		return std::make_unique<PrintStmt>(expr ? expr->clone() : nullptr);
-	}
 };
 
 class ExpressionStmt : public Stmt {
@@ -42,10 +37,6 @@ public:
 
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
-	}
-
-	std::unique_ptr<Stmt> clone() const override {
-		return std::make_unique<ExpressionStmt>(expr ? expr->clone() : nullptr);
 	}
 };
 
@@ -60,10 +51,6 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
-
-	std::unique_ptr<Stmt> clone() const override {
-		return std::make_unique<ByteStmt>(name, initializer ? initializer->clone() : nullptr);
-	}
 };
 
 class ArrayStmt : public Stmt {
@@ -75,8 +62,5 @@ public:
 
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
-	}
-	std::unique_ptr<Stmt> clone() const override {
-		return std::make_unique<ArrayStmt>(name);
 	}
 };
