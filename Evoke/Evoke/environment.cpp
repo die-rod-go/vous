@@ -1,10 +1,10 @@
 #include "environment.h"
 
+
 std::unique_ptr<Environment> Environment::clone()
 {
 	// Clone the enclosing environment if it exists
-	std::unique_ptr<Environment> clonedEnclosing =
-		enclosing ? enclosing->clone() : nullptr;
+	std::unique_ptr<Environment> clonedEnclosing = enclosing ? enclosing->clone() : nullptr;
 
 	// Create a new environment with the cloned enclosing
 	auto clonedEnv = std::make_unique<Environment>(std::move(clonedEnclosing));

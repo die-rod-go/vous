@@ -9,6 +9,7 @@
 class Interpreter : public ExprVisitor, public StmtVisitor
 {
 public:
+	Interpreter() : environment(std::make_unique<Environment>()) {};
 	void interpret(std::vector<std::unique_ptr<Stmt>>& statements) const;
 
 	//	exprs

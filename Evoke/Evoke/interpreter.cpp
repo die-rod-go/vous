@@ -23,7 +23,7 @@ void Interpreter::execute(const Stmt& stmt) const
 
 void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const
 {
-	std::unique_ptr<Environment> previous = environment->clone();
+	std::unique_ptr<Environment> previous = this->environment->clone();
 
 	try
 	{
@@ -34,10 +34,11 @@ void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environmen
 			execute(*statement);
 		}
 	}
-	catch (...) {
-		this->environment = std::move(previous);
-		throw;
-	}
+	catch(int error)
+	{}
+	//	need to implement finally-like functionality
+
+	this->environment = std::move(previous);
 }
 
 void Interpreter::visit(const UnaryExpr& expr) const
