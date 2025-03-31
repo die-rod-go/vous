@@ -11,12 +11,14 @@
 class Environment
 {
 private:
+	const std::unique_ptr<Environment> enclosing;
 	std::unordered_map<std::string, Value> values;
-	std::unordered_map<std::string, std::vector<std::unique_ptr<Stmt>>> eventMap;
 	std::unordered_map<std::string, std::vector<Value>> arrayMap;
 
 public:
-	Environment() {};
+	Environment() : enclosing(nullptr) {}
+	Environment(std::unique_ptr<Environment> enclosing) : enclosing(std::move(enclosing)) {}
+	std::unique_ptr<Environment> clone();
 
 	// Variable handling
 	void defineVariable(const std::string& name, Value value);
@@ -28,9 +30,5 @@ public:
 	void pushArray(Token name, Value value);
 	void setArrayElement(Token name, int index, Value value);
 	Value getArrayElement(Token name, int index);
-
-	// Event handling
-	void subscribe(const std::string& eventName, std::unique_ptr<Stmt> stmt);
-	const std::vector<std::unique_ptr<Stmt>>& getSubscribedStatements(const std::string& eventName) const;
 };
 

@@ -64,7 +64,9 @@ std::unique_ptr<Stmt> Parser::arrDeclaration()
 
 std::unique_ptr<Stmt> Parser::statement()
 {
+	if (match({ IF })) return ifStatement();
 	if (match({ PRINT })) return printStatement();
+	if (match({ LEFT_BRACE })) return blockStatement();
 
 	return expressionStatement();
 }
@@ -81,6 +83,32 @@ std::unique_ptr<Stmt> Parser::expressionStatement()
 	std::unique_ptr<Expr> expr = expression();
 	consume(SEMICOLON, "Expect ';' after expression.");
 	return std::make_unique<ExpressionStmt>(std::move(expr));
+}
+
+std::unique_ptr<Stmt> Parser::ifStatement()
+{
+	consume(LEFT_PAREN, "Expect '(' after 'if'");
+	std::unique_ptr<Expr> condition = expression();
+	consume(RIGHT_PAREN, "Expect ')' after if condition");
+
+	std::unique_ptr<Stmt> thenBranch = statement();
+	std::unique_ptr<Stmt> elseBranch = nullptr;
+	if (match({ ELSE }))
+		elseBranch = statement();
+
+	return std::make_unique<IfStmt>(std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+std::unique_ptr<Stmt> Parser::blockStatement()
+{
+	std::vector<std::unique_ptr<Stmt>> statements;
+	while (!check(RIGHT_BRACE) && !isAtEnd())
+	{
+		statements.push_back(std::move(declaration()));
+	}
+
+	consume(RIGHT_BRACE, "Expect '}' after block.");
+	return std::make_unique<BlockStmt>(std::move(statements));
 }
 
 std::unique_ptr<Expr> Parser::expression()

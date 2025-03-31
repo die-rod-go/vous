@@ -28,9 +28,12 @@ public:
 	void visit(const PrintStmt& stmt) const override;
 	void visit(const ByteStmt& stmt) const override;
 	void visit(const ArrayStmt& stmt) const override;
+	void visit(const IfStmt& stmt) const override;
+	void visit(const BlockStmt& stmt) const override;
 
 private:
 	void execute(const Stmt& stmt) const;
+	void executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const;
 	void evaluate(const Expr& expr) const;
 	void checkNumberOperand(const Token& op, const Value& operand) const;
 	void checkNumberOperands(const Token& op, const Value& left, const Value& right) const;
@@ -38,7 +41,8 @@ private:
 	void checkBoolOperands(const Token& op, const Value& left, const Value& right) const;
 	bool areValuesEqual(const Value& left, const Value& right) const;
 	Value addValues(const Token& op, const Value& left, const Value& right) const;
+	bool isTruthy(const Value& value) const;
 
-	mutable Environment environment;
+	mutable std::unique_ptr<Environment> environment;
 	mutable Value currentResult;
 };

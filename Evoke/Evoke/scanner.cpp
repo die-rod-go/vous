@@ -7,7 +7,11 @@ const std::unordered_map<std::string, TokenType> Scanner::keywords = {
 	{"[]", ARRAY},
 	{"input", INPUT},
 	{"true", TRUE},
-	{"false", FALSE}
+	{"false", FALSE},
+	{"if", IF},
+	{"else", ELSE},
+	{"while", WHILE},
+	{"for",  FOR}
 };
 
 Scanner::Scanner(std::string source) : source(source), start(0), current(0), line(1), currentOnLine(0) {}

@@ -79,7 +79,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="example.pls">
+    <None Include="example.vs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -1,5 +1,25 @@
 #include "environment.h"
 
+std::unique_ptr<Environment> Environment::clone()
+{
+	// Clone the enclosing environment if it exists
+	std::unique_ptr<Environment> clonedEnclosing =
+		enclosing ? enclosing->clone() : nullptr;
+
+	// Create a new environment with the cloned enclosing
+	auto clonedEnv = std::make_unique<Environment>(std::move(clonedEnclosing));
+
+	// Copy all variables
+	clonedEnv->values = values;
+
+	// Deep copy the arrays
+	for (const auto& pair : arrayMap) {
+		clonedEnv->arrayMap[pair.first] = pair.second;
+	}
+
+	return clonedEnv;
+}
+
 void Environment::defineVariable(const std::string& name, Value value)
 {
 	values[name] = value;
@@ -13,24 +33,13 @@ void Environment::assignVariable(Token name, Value value)
 		return;
 	}
 
-	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
-
-}
-
-void Environment::subscribe(const std::string& eventName, std::unique_ptr<Stmt> stmt)
-{
-	eventMap[eventName].push_back(std::move(stmt));
-}
-
-const std::vector<std::unique_ptr<Stmt>>& Environment::getSubscribedStatements(const std::string& eventName) const
-{
-	std::vector<std::unique_ptr<Stmt>> emptyList;
-	auto iterator = eventMap.find(eventName);
-	if (iterator != eventMap.end())
+	if (enclosing != nullptr)
 	{
-		return iterator->second;
+		enclosing->assignVariable(name, value);
+		return;
 	}
-	return emptyList;
+
+	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
 Value Environment::getVariable(Token name) const
@@ -39,6 +48,10 @@ Value Environment::getVariable(Token name) const
 	{
 		return values.at(name.lexeme);
 	}
+
+	if (enclosing != nullptr)
+		return enclosing->getVariable(name);
+
 	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 	return double();
 }
@@ -53,6 +66,12 @@ void Environment::pushArray(Token name, Value value)
 	if (arrayMap.find(name.lexeme) != arrayMap.end())
 	{
 		arrayMap[name.lexeme].push_back(value);
+		return;
+	}
+
+	if (enclosing != nullptr)
+	{
+		enclosing->pushArray(name, value);
 		return;
 	}
 
@@ -74,6 +93,12 @@ void Environment::setArrayElement(Token name, int index, Value value)
 		}
 	}
 
+	if (enclosing != nullptr)
+	{
+		enclosing->setArrayElement(name, index, value);
+		return;
+	}
+
 	throw RuntimeError(name, "Undefined array '" + name.lexeme + "'.");
 }
 
@@ -83,13 +108,16 @@ Value Environment::getArrayElement(Token name, int index)
 	{
 		if (index >= 0 && index < arrayMap[name.lexeme].size())
 		{
-			return arrayMap[name.lexeme][index];;
+			return arrayMap[name.lexeme][index];
 		}
 		else
 		{
 			throw RuntimeError(name, "Index out of bounds for array '" + name.lexeme + "'.");
 		}
 	}
+
+	if (enclosing != nullptr)
+		return enclosing->getArrayElement(name, index);
 
 	throw RuntimeError(name, "Undefined array '" + name.lexeme + "'.");
 }

@@ -21,6 +21,25 @@ void Interpreter::execute(const Stmt& stmt) const
 	stmt.accept(*this);
 }
 
+void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const
+{
+	std::unique_ptr<Environment> previous = environment->clone();
+
+	try
+	{
+		this->environment = std::move(environment);
+
+		for (const auto& statement : stmt.stmts)
+		{
+			execute(*statement);
+		}
+	}
+	catch (...) {
+		this->environment = std::move(previous);
+		throw;
+	}
+}
+
 void Interpreter::visit(const UnaryExpr& expr) const
 {
 	evaluate(*expr.operand);
@@ -96,12 +115,10 @@ void Interpreter::visit(const BinaryExpr& expr) const
 		currentResult = areValuesEqual(left, right);
 		break;
 	case AND_AND:
-		checkBoolOperands(expr.op, left, right);
-		currentResult = left.getBool() && right.getBool();
+		currentResult = isTruthy(left) && isTruthy(right);
 		break;
 	case PIPE_PIPE:
-		checkBoolOperands(expr.op, left, right);
-		currentResult = left.getBool() || right.getBool();
+		currentResult = isTruthy(left) || isTruthy(right);
 		break;
 	}
 }
@@ -113,21 +130,21 @@ void Interpreter::visit(const LiteralExpr& expr) const
 
 void Interpreter::visit(const VariableExpr& expr) const
 {
-	currentResult = environment.getVariable(expr.name);
+	currentResult = environment->getVariable(expr.name);
 }
 
 void Interpreter::visit(const AssignmentExpr& expr) const
 {
 	evaluate(*expr.value);
 	Value value = currentResult;
-	environment.assignVariable(expr.name, value);
+	environment->assignVariable(expr.name, value);
 	currentResult = value;
 }
 
 void Interpreter::visit(const ArrayPushExpr& expr) const
 {
 	evaluate(*expr.value);
-	environment.pushArray(expr.name, currentResult);
+	environment->pushArray(expr.name, currentResult);
 }
 
 void Interpreter::visit(const ArrayAccessExpr& expr) const
@@ -135,7 +152,7 @@ void Interpreter::visit(const ArrayAccessExpr& expr) const
 	evaluate(*expr.index);
 	checkNumberOperand(expr.name, currentResult);
 	int index = static_cast<int>(currentResult.getDouble());
-	currentResult = environment.getArrayElement(expr.name, index);
+	currentResult = environment->getArrayElement(expr.name, index);
 }
 
 void Interpreter::visit(const ArraySetExpr& expr) const
@@ -145,7 +162,7 @@ void Interpreter::visit(const ArraySetExpr& expr) const
 	int index = static_cast<int>(currentResult.getDouble());
 	evaluate(*expr.value);
 	Value value = currentResult;
-	environment.setArrayElement(expr.name, index, value);
+	environment->setArrayElement(expr.name, index, value);
 }
 
 void Interpreter::visit(const InputExpr& expr) const
@@ -182,12 +199,26 @@ void Interpreter::visit(const ByteStmt& stmt) const
 		value = currentResult;
 	}
 
-	environment.defineVariable(stmt.name.lexeme, value);
+	environment->defineVariable(stmt.name.lexeme, value);
 }
 
 void Interpreter::visit(const ArrayStmt& stmt) const
 {
-	environment.defineArray(stmt.name.lexeme);
+	environment->defineArray(stmt.name.lexeme);
+}
+
+void Interpreter::visit(const IfStmt& stmt) const
+{
+	evaluate(*stmt.condition);
+	if (isTruthy(currentResult))
+		execute(*stmt.thenBranch);
+	else if (stmt.elseBranch != nullptr)
+		execute(*stmt.elseBranch);
+}
+
+void Interpreter::visit(const BlockStmt& stmt) const
+{
+	executeBlock(stmt, std::move(std::make_unique<Environment>()));
 }
 
 void Interpreter::evaluate(const Expr& expr) const
@@ -255,5 +286,19 @@ Value Interpreter::addValues(const Token& op, const Value& left, const Value& ri
 		return Value(left.getDouble() + right.getDouble());
 
 	return Value(left.getString() + right.getString());
+}
+
+bool Interpreter::isTruthy(const Value& value) const
+{
+	switch (value.getType())
+	{
+	case Type::BOOLEAN:
+		return value.getBool();
+		break;
+	case Type::DOUBLE:
+		return value.getDouble() != 0;
+		break;
+	}
+	return true;
 }
 

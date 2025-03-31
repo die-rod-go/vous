@@ -8,6 +8,8 @@ public:
 	virtual void visit(const class ExpressionStmt& stmt) const = 0;
 	virtual void visit(const class ByteStmt& stmt) const = 0;
 	virtual void visit(const class ArrayStmt& stmt) const = 0;
+	virtual void visit(const class IfStmt& stmt) const = 0;
+	virtual void visit(const class BlockStmt& stmt) const = 0;
 };
 
 class Stmt {
@@ -61,6 +63,34 @@ public:
 		: name(name) {}
 
 	void accept(const StmtVisitor& visitor) const override {
+		visitor.visit(*this);
+	}
+};
+
+class IfStmt : public Stmt
+{
+public:
+	std::unique_ptr<Expr> condition;
+	std::unique_ptr<Stmt> thenBranch;
+	std::unique_ptr<Stmt> elseBranch;
+
+	IfStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> thenBranch, std::unique_ptr<Stmt> elseBranch)
+		: condition(std::move(condition)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)) {}
+
+	void accept(const StmtVisitor& visitor) const override {
+		visitor.visit(*this);
+	}
+
+};
+
+class BlockStmt : public Stmt
+{
+public:
+	std::vector<std::unique_ptr<Stmt>> stmts;
+	BlockStmt(std::vector<std::unique_ptr<Stmt>> stmts) : stmts(std::move(stmts)) {}
+
+	void accept(const StmtVisitor& visitor) const override
+	{
 		visitor.visit(*this);
 	}
 };

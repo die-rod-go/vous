@@ -14,7 +14,7 @@ enum TokenType {
 
 	// One or two character tokens.
 	BANG, BANG_EQUAL, // ! !=
-	EQUAL, EQUAL_EQUAL, // = ==
+	EQUAL, EQUAL_EQUAL,  // = ==
 	GREATER, GREATER_EQUAL, GREATER_GREATER, // > >= >>
 	LESS, LESS_EQUAL, LESS_LESS, // < <= <<
 	ARROW, // <-
@@ -26,7 +26,7 @@ enum TokenType {
 	IDENTIFIER, NUMBER_LITERAL, STRING_LITERAL, TRUE, FALSE,
 
 	// Keywords.
-	VAR, ARRAY, PRINT, INPUT,
+	VAR, ARRAY, PRINT, INPUT, IF, ELSE, WHILE, FOR,
 
 	END_OF_FILE,
 
