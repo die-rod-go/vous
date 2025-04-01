@@ -1,8 +1,4 @@
-var test = 10;
-if(false && true)
+for(var x = 0; x < 100; x = x + 1)
 {
-	var test = 5;
-	print test;
+	print x;
 }
-
-print test;

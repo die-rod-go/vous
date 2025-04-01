@@ -23,22 +23,32 @@ void Interpreter::execute(const Stmt& stmt) const
 
 void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const
 {
-	std::unique_ptr<Environment> previous = this->environment->clone();
+	std::unique_ptr<Environment> previous = std::move(this->environment);
 
 	try
 	{
 		this->environment = std::move(environment);
+		this->environment->enclosing = std::move(previous);
 
 		for (const auto& statement : stmt.stmts)
 		{
 			execute(*statement);
 		}
-	}
-	catch(int error)
-	{}
-	//	need to implement finally-like functionality
 
-	this->environment = std::move(previous);
+		//	restore the previous environment
+		previous = std::move(this->environment->enclosing);
+		this->environment = std::move(previous);
+	}
+	catch (...)
+	{
+		//	ensure environment is restored even if an exception occurs
+		if (this->environment && this->environment->enclosing) {
+			previous = std::move(this->environment->enclosing);
+		}
+		//	need to fix, potential unsafe double move of previous
+		this->environment = std::move(previous);
+		throw;
+	}
 }
 
 void Interpreter::visit(const UnaryExpr& expr) const
@@ -188,7 +198,7 @@ void Interpreter::visit(const PrintStmt& stmt) const
 {
 	evaluate(*stmt.expr);
 	Value value = currentResult;
-	std::cout << value.toString() << std::endl;
+	std::cout << value.toString() << "\n";
 }
 
 void Interpreter::visit(const ByteStmt& stmt) const
@@ -208,6 +218,11 @@ void Interpreter::visit(const ArrayStmt& stmt) const
 	environment->defineArray(stmt.name.lexeme);
 }
 
+void Interpreter::visit(const BlockStmt& stmt) const
+{
+	executeBlock(stmt, std::move(std::make_unique<Environment>()));
+}
+
 void Interpreter::visit(const IfStmt& stmt) const
 {
 	evaluate(*stmt.condition);
@@ -217,9 +232,15 @@ void Interpreter::visit(const IfStmt& stmt) const
 		execute(*stmt.elseBranch);
 }
 
-void Interpreter::visit(const BlockStmt& stmt) const
+void Interpreter::visit(const WhileStmt& stmt) const
 {
-	executeBlock(stmt, std::move(std::make_unique<Environment>()));
+	evaluate(*stmt.condition);
+	while (isTruthy(currentResult))
+	{
+		execute(*stmt.body);
+		//	must reevaluate condition
+		evaluate(*stmt.condition);
+	}
 }
 
 void Interpreter::evaluate(const Expr& expr) const

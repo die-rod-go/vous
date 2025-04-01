@@ -1,25 +1,5 @@
 #include "environment.h"
 
-
-std::unique_ptr<Environment> Environment::clone()
-{
-	// Clone the enclosing environment if it exists
-	std::unique_ptr<Environment> clonedEnclosing = enclosing ? enclosing->clone() : nullptr;
-
-	// Create a new environment with the cloned enclosing
-	auto clonedEnv = std::make_unique<Environment>(std::move(clonedEnclosing));
-
-	// Copy all variables
-	clonedEnv->values = values;
-
-	// Deep copy the arrays
-	for (const auto& pair : arrayMap) {
-		clonedEnv->arrayMap[pair.first] = pair.second;
-	}
-
-	return clonedEnv;
-}
-
 void Environment::defineVariable(const std::string& name, Value value)
 {
 	values[name] = value;
@@ -49,7 +29,7 @@ Value Environment::getVariable(Token name) const
 		return values.at(name.lexeme);
 	}
 
-	if (enclosing != nullptr)
+	if (enclosing.get() != nullptr)
 		return enclosing->getVariable(name);
 
 	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");

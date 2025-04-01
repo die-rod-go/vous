@@ -29,8 +29,9 @@ public:
 	void visit(const PrintStmt& stmt) const override;
 	void visit(const ByteStmt& stmt) const override;
 	void visit(const ArrayStmt& stmt) const override;
-	void visit(const IfStmt& stmt) const override;
 	void visit(const BlockStmt& stmt) const override;
+	void visit(const IfStmt& stmt) const override;
+	void visit(const WhileStmt& stmt) const override;
 
 private:
 	void execute(const Stmt& stmt) const;

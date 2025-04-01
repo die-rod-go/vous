@@ -64,8 +64,10 @@ std::unique_ptr<Stmt> Parser::arrDeclaration()
 
 std::unique_ptr<Stmt> Parser::statement()
 {
+	if (match({ FOR })) return forStatement();
 	if (match({ IF })) return ifStatement();
 	if (match({ PRINT })) return printStatement();
+	if (match({ WHILE })) return whileStatement();
 	if (match({ LEFT_BRACE })) return blockStatement();
 
 	return expressionStatement();
@@ -85,6 +87,18 @@ std::unique_ptr<Stmt> Parser::expressionStatement()
 	return std::make_unique<ExpressionStmt>(std::move(expr));
 }
 
+std::unique_ptr<Stmt> Parser::blockStatement()
+{
+	std::vector<std::unique_ptr<Stmt>> statements;
+	while (!check(RIGHT_BRACE) && !isAtEnd())
+	{
+		statements.push_back(std::move(declaration()));
+	}
+
+	consume(RIGHT_BRACE, "Expect '}' after block.");
+	return std::make_unique<BlockStmt>(std::move(statements));
+}
+
 std::unique_ptr<Stmt> Parser::ifStatement()
 {
 	consume(LEFT_PAREN, "Expect '(' after 'if'");
@@ -99,16 +113,79 @@ std::unique_ptr<Stmt> Parser::ifStatement()
 	return std::make_unique<IfStmt>(std::move(condition), std::move(thenBranch), std::move(elseBranch));
 }
 
-std::unique_ptr<Stmt> Parser::blockStatement()
+std::unique_ptr<Stmt> Parser::whileStatement()
 {
-	std::vector<std::unique_ptr<Stmt>> statements;
-	while (!check(RIGHT_BRACE) && !isAtEnd())
+	consume(LEFT_PAREN, "Expect '(' after 'while'.");
+	std::unique_ptr<Expr> condition = expression();
+	consume(RIGHT_PAREN, "Expect ')' after while condition");
+	std::unique_ptr<Stmt> body = statement();
+
+	return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
+}
+
+std::unique_ptr<Stmt> Parser::forStatement()
+{
+	consume(LEFT_PAREN, "Expect '(' after 'for'.");
+	std::unique_ptr<Stmt> initializer;
+
+	//	parse initializer
+	if (match({ SEMICOLON }))
 	{
-		statements.push_back(std::move(declaration()));
+		initializer = nullptr;
+	}
+	else if (match({ VAR }))
+	{
+		initializer = varDeclaration();
+	}
+	else
+	{
+		initializer = expressionStatement();
 	}
 
-	consume(RIGHT_BRACE, "Expect '}' after block.");
-	return std::make_unique<BlockStmt>(std::move(statements));
+	//	parse condition
+	std::unique_ptr<Expr> condition = nullptr;
+	if (!check(SEMICOLON))
+	{
+		condition = expression();
+	}
+	consume(SEMICOLON, "Expect ';' after loop condition.");
+
+	//	parse clause
+	std::unique_ptr<Expr> increment = nullptr;
+	if (!check(RIGHT_PAREN))
+	{
+		increment = expression();
+	}
+	consume(RIGHT_PAREN, "Expect ')' after for clauses");
+
+	std::unique_ptr<Stmt> body = statement();
+
+	if (increment != nullptr)
+	{
+		//	construct list with body and increment as separate statements
+		//	and set the loop body to be that new list
+		std::vector<std::unique_ptr<Stmt>> statements;
+		statements.push_back(std::move(body));
+		statements.push_back(std::make_unique<ExpressionStmt>(std::move(increment)));
+		body = std::make_unique<BlockStmt>(std::move(statements));
+	}
+
+	if (condition == nullptr) {
+		condition = std::make_unique<LiteralExpr>(Token(TRUE, "true", Value(true), previous().line));
+	}
+
+	body = std::make_unique<WhileStmt>(std::move(condition), std::move(body));
+
+	if (initializer != nullptr) {
+		//	construct list with body and initializer as separate statements
+		//	and set the loop body to be that new list
+		std::vector<std::unique_ptr<Stmt>> statements;
+		statements.push_back(std::move(initializer));
+		statements.push_back(std::move(body));
+		body = std::make_unique<BlockStmt>(std::move(statements));
+	}
+
+	return body;
 }
 
 std::unique_ptr<Expr> Parser::expression()

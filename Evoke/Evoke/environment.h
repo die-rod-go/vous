@@ -11,14 +11,13 @@
 class Environment
 {
 private:
-	const std::unique_ptr<Environment> enclosing;
 	std::unordered_map<std::string, Value> values;
 	std::unordered_map<std::string, std::vector<Value>> arrayMap;
 
 public:
+	mutable std::unique_ptr<Environment> enclosing;
 	Environment() : enclosing(nullptr) {}
 	Environment(std::unique_ptr<Environment> enclosing) : enclosing(std::move(enclosing)) {}
-	std::unique_ptr<Environment> clone();
 
 	// Variable handling
 	void defineVariable(const std::string& name, Value value);
