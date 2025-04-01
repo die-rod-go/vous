@@ -8,8 +8,9 @@ public:
 	virtual void visit(const class ExpressionStmt& stmt) const = 0;
 	virtual void visit(const class ByteStmt& stmt) const = 0;
 	virtual void visit(const class ArrayStmt& stmt) const = 0;
-	virtual void visit(const class IfStmt& stmt) const = 0;
 	virtual void visit(const class BlockStmt& stmt) const = 0;
+	virtual void visit(const class IfStmt& stmt) const = 0;
+	virtual void visit(const class WhileStmt& stmt) const = 0;
 };
 
 class Stmt {
@@ -67,6 +68,18 @@ public:
 	}
 };
 
+class BlockStmt : public Stmt
+{
+public:
+	std::vector<std::unique_ptr<Stmt>> stmts;
+	BlockStmt(std::vector<std::unique_ptr<Stmt>> stmts) : stmts(std::move(stmts)) {}
+
+	void accept(const StmtVisitor& visitor) const override
+	{
+		visitor.visit(*this);
+	}
+};
+
 class IfStmt : public Stmt
 {
 public:
@@ -80,17 +93,18 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
-
 };
 
-class BlockStmt : public Stmt
+class WhileStmt : public Stmt
 {
 public:
-	std::vector<std::unique_ptr<Stmt>> stmts;
-	BlockStmt(std::vector<std::unique_ptr<Stmt>> stmts) : stmts(std::move(stmts)) {}
+	std::unique_ptr<Expr> condition;
+	std::unique_ptr<Stmt> body;
 
-	void accept(const StmtVisitor& visitor) const override
-	{
+	WhileStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body) 
+		: condition(std::move(condition)), body(std::move(body)) {}
+
+	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
 };
