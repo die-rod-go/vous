@@ -405,6 +405,10 @@ void Parser::synchronize()
 		{
 		case VAR:
 		case IDENTIFIER:
+		case PRINT:
+		case IF:
+		case WHILE:
+		case FOR:
 			return;
 		}
 		advance();

@@ -47,6 +47,7 @@ private:
 	std::unique_ptr<Expr> factor();
 	std::unique_ptr<Expr> unary();
 	std::unique_ptr<Expr> primary();
+
 	void synchronize();
 
 	//	utility
