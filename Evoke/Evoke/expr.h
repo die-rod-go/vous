@@ -14,6 +14,7 @@ public:
 	virtual void visit(const class ArrayAccessExpr& expr) const = 0;
 	virtual void visit(const class ArraySetExpr& expr) const = 0;
 	virtual void visit(const class InputExpr& expr) const = 0;
+	virtual void visit(const class CallExpr& expr) const = 0;
 };
 
 class Expr
@@ -148,6 +149,22 @@ public:
 class InputExpr : public Expr {
 public:
 	InputExpr() {};
+
+	void accept(const ExprVisitor& visitor) const override
+	{
+		visitor.visit(*this);
+	}
+};
+
+class CallExpr : public Expr 
+{
+public:
+	std::unique_ptr<Expr> callee;
+	Token name;
+	std::vector<std::unique_ptr<Expr>> arguments;
+
+	CallExpr(std::unique_ptr<Expr> callee, Token name, std::vector<std::unique_ptr<Expr>> arguments) 
+	: callee(std::move(callee)), name(name), arguments(std::move(arguments)) {};
 
 	void accept(const ExprVisitor& visitor) const override
 	{

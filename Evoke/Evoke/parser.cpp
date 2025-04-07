@@ -314,6 +314,44 @@ std::unique_ptr<Expr> Parser::unary()
 	return primary();
 }
 
+std::unique_ptr<Expr> Parser::call()
+{
+	std::unique_ptr<Expr> expr = primary();
+
+	while (true)
+	{
+		if (match({ LEFT_PAREN }))
+		{
+			expr = finishCall(std::move(expr));
+		}
+		else
+		{
+			break;
+		}
+	}
+	return expr;
+}
+
+std::unique_ptr<Expr> Parser::finishCall(std::unique_ptr<Expr> callee)
+{
+	int maxArguments = 255;
+
+	std::vector<std::unique_ptr<Expr>> arguments;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			if (arguments.size() >= maxArguments)
+				Vous::error(peek(), "Can't have more than 255 arguments");
+			arguments.push_back(std::move(expression()));
+		} while (match({ COMMA }));
+	}
+
+	Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+
+	return std::make_unique<CallExpr>(std::move(callee), paren, std::move(arguments));
+}
+
 std::unique_ptr<Expr> Parser::primary()
 {
 	if (match({ NUMBER_LITERAL, STRING_LITERAL, TRUE, FALSE }))

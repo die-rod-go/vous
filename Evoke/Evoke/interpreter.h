@@ -13,6 +13,7 @@ public:
 	void interpret(std::vector<std::unique_ptr<Stmt>>& statements) const;
 
 	//	exprs
+	void visit(const CallExpr& expr) const override {};
 	void visit(const UnaryExpr& expr) const override;
 	void visit(const BinaryExpr& expr) const override;
 	void visit(const GroupingExpr& expr) const override;
