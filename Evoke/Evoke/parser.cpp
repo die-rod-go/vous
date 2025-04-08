@@ -311,7 +311,7 @@ std::unique_ptr<Expr> Parser::unary()
 		return std::make_unique<UnaryExpr>(op, std::move(right));
 	}
 
-	return primary();
+	return call();
 }
 
 std::unique_ptr<Expr> Parser::call()

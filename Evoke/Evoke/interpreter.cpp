@@ -1,9 +1,17 @@
+#include <iostream>
 #include "interpreter.h"
 #include "vous.h"
-#include <iostream>
+#include "nativefunctions.h"
 
-void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>& statements) const
+
+Interpreter::Interpreter() : environment(std::make_unique<Environment>())
 {
+	environment->defineVariable("clock", Value(std::make_shared<ClockFunction>()));
+	globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
+
+}
+
+void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>& statements) const {
 	try {
 		for (const auto& statement : statements)
 		{
@@ -21,34 +29,27 @@ void Interpreter::execute(const Stmt& stmt) const
 	stmt.accept(*this);
 }
 
-void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const
+void Interpreter::visit(const CallExpr& expr) const
 {
-	std::unique_ptr<Environment> previous = std::move(this->environment);
+	evaluate(*expr.callee);
+	Value callee = currentResult;
 
-	try
+	std::vector<Value> arguments;
+	for (const auto& argument : expr.arguments)
 	{
-		this->environment = std::move(environment);
-		this->environment->enclosing = std::move(previous);
-
-		for (const auto& statement : stmt.stmts)
-		{
-			execute(*statement);
-		}
-
-		//	restore the previous environment
-		previous = std::move(this->environment->enclosing);
-		this->environment = std::move(previous);
+		evaluate(*argument);
+		arguments.push_back(currentResult);
 	}
-	catch (...)
-	{
-		//	ensure environment is restored even if an exception occurs
-		if (this->environment && this->environment->enclosing) {
-			previous = std::move(this->environment->enclosing);
-		}
-		//	need to fix, potential unsafe double move of previous
-		this->environment = std::move(previous);
-		throw;
-	}
+
+	if (callee.getType() != Type::FUNCTION)
+		throw RuntimeError(expr.paren, "Can only call functions and classes.");
+
+	std::shared_ptr<VousCallable> function = callee.getFunction();
+
+	if (arguments.size() != function->getArity())
+		throw RuntimeError(expr.paren, "Expected " + std::to_string(function->getArity()) + " arguments but got " + std::to_string(arguments.size()) + ".");
+
+	currentResult = function->call(*this, arguments);
 }
 
 void Interpreter::visit(const UnaryExpr& expr) const
@@ -223,6 +224,36 @@ void Interpreter::visit(const BlockStmt& stmt) const
 	executeBlock(stmt, std::move(std::make_unique<Environment>()));
 }
 
+void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const
+{
+	std::unique_ptr<Environment> previous = std::move(this->environment);
+
+	try
+	{
+		this->environment = std::move(environment);
+		this->environment->enclosing = std::move(previous);
+
+		for (const auto& statement : stmt.stmts)
+		{
+			execute(*statement);
+		}
+
+		//	restore the previous environment
+		previous = std::move(this->environment->enclosing);
+		this->environment = std::move(previous);
+	}
+	catch (...)
+	{
+		//	ensure environment is restored even if an exception occurs
+		if (this->environment && this->environment->enclosing) {
+			previous = std::move(this->environment->enclosing);
+		}
+		//	need to fix, potential unsafe double move of previous
+		this->environment = std::move(previous);
+		throw;
+	}
+}
+
 void Interpreter::visit(const IfStmt& stmt) const
 {
 	evaluate(*stmt.condition);
@@ -238,7 +269,7 @@ void Interpreter::visit(const WhileStmt& stmt) const
 	while (isTruthy(currentResult))
 	{
 		execute(*stmt.body);
-		//	must reevaluate condition
+		//	must reevaluate condition after each loop iteration
 		evaluate(*stmt.condition);
 	}
 }

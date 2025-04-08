@@ -101,7 +101,7 @@ public:
 	std::unique_ptr<Expr> condition;
 	std::unique_ptr<Stmt> body;
 
-	WhileStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body) 
+	WhileStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body)
 		: condition(std::move(condition)), body(std::move(body)) {}
 
 	void accept(const StmtVisitor& visitor) const override {

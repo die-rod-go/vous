@@ -6,14 +6,16 @@
 #include "environment.h"
 #include "value.h"
 
+class VousCallable;
+
 class Interpreter : public ExprVisitor, public StmtVisitor
 {
 public:
-	Interpreter() : environment(std::make_unique<Environment>()) {};
+	Interpreter();
 	void interpret(std::vector<std::unique_ptr<Stmt>>& statements) const;
 
 	//	exprs
-	void visit(const CallExpr& expr) const override {};
+	void visit(const CallExpr& expr) const override;
 	void visit(const UnaryExpr& expr) const override;
 	void visit(const BinaryExpr& expr) const override;
 	void visit(const GroupingExpr& expr) const override;
@@ -46,6 +48,7 @@ private:
 	Value addValues(const Token& op, const Value& left, const Value& right) const;
 	bool isTruthy(const Value& value) const;
 
+	mutable Environment globals;
 	mutable std::unique_ptr<Environment> environment;
 	mutable Value currentResult;
 };

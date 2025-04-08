@@ -143,6 +143,7 @@
     <ClInclude Include="ASTPrinter.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="errors.h" />
+    <ClInclude Include="nativefunctions.h" />
     <ClInclude Include="vous.h" />
     <ClInclude Include="interpreter.h" />
     <ClInclude Include="expr.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="token.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="value.h" />
+    <ClInclude Include="vouscallable.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="example.vs" />

@@ -156,15 +156,15 @@ public:
 	}
 };
 
-class CallExpr : public Expr 
+class CallExpr : public Expr
 {
 public:
 	std::unique_ptr<Expr> callee;
-	Token name;
+	Token paren;
 	std::vector<std::unique_ptr<Expr>> arguments;
 
-	CallExpr(std::unique_ptr<Expr> callee, Token name, std::vector<std::unique_ptr<Expr>> arguments) 
-	: callee(std::move(callee)), name(name), arguments(std::move(arguments)) {};
+	CallExpr(std::unique_ptr<Expr> callee, Token name, std::vector<std::unique_ptr<Expr>> arguments)
+		: callee(std::move(callee)), paren(paren), arguments(std::move(arguments)) {};
 
 	void accept(const ExprVisitor& visitor) const override
 	{

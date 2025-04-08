@@ -1,25 +1,19 @@
 var[] array;
+var length;
 
-array <-10;
-array <-1;
-array <-12;
-array <-13;
-array <-111;
-array <-11;
-array <-221;
-array <-14;
-array <-51;
-array <-15;
-array <-24;
-array <-20;
-array <-21;
-array <-12;
-
-for(var i = 0; i < 14; i = i + 1)	
+for(var x = 0; x < 100; x = x + 1)
 {
-	for(var j = 0; j < 14 - i - 1; j = j + 1)
+	array <- x;
+	length = length + 1;
+}
+
+var before = clock();
+
+for(var i = 0; i < length; i = i + 1)	
+{
+	for(var j = 0; j < length - i - 1; j = j + 1)
 	{
-		if(array[j] > array[j+1])
+		if(array[j] < array[j+1])
 		{
 			var temp = array[j];
 			array[j] = array[j+1];
@@ -27,10 +21,12 @@ for(var i = 0; i < 14; i = i + 1)
 		}
 	}
 }
+var after = clock();
 
-for(var i = 0; i < 14; i = i + 1)
+for(var i = 0; i < length; i = i + 1)
 {
 	print array[i];
 }
-
-
+print "
+";
+print after - before;

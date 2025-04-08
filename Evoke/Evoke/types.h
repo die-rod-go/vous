@@ -1,5 +1,5 @@
 #pragma once
 
 enum class Type {
-	STRING, DOUBLE, BOOLEAN
+	STRING, DOUBLE, BOOLEAN, FUNCTION, NOV
 };
