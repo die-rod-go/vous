@@ -18,6 +18,11 @@ public:
 	mutable std::unique_ptr<Environment> enclosing;
 	Environment() : enclosing(nullptr) {}
 	Environment(std::unique_ptr<Environment> enclosing) : enclosing(std::move(enclosing)) {}
+	Environment(const Environment& other)
+		: values(other.values),
+		arrayMap(other.arrayMap),
+		enclosing(other.enclosing ? std::make_unique<Environment>(*other.enclosing) : nullptr)
+	{}
 
 	// Variable handling
 	void defineVariable(const std::string& name, Value value);

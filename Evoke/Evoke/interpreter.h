@@ -6,8 +6,6 @@
 #include "environment.h"
 #include "value.h"
 
-class VousCallable;
-
 class Interpreter : public ExprVisitor, public StmtVisitor
 {
 public:
@@ -29,7 +27,7 @@ public:
 
 	//	stmts
 	void visit(const ExpressionStmt& stmt) const override;
-	void visit(const FunctionStmt& stmt) const override {};
+	void visit(const FunctionStmt& stmt) const override;
 	void visit(const PrintStmt& stmt) const override;
 	void visit(const ByteStmt& stmt) const override;
 	void visit(const ArrayStmt& stmt) const override;
@@ -37,9 +35,11 @@ public:
 	void visit(const IfStmt& stmt) const override;
 	void visit(const WhileStmt& stmt) const override;
 
+	mutable Environment globals;
+	void executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const;
+
 private:
 	void execute(const Stmt& stmt) const;
-	void executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const;
 	void evaluate(const Expr& expr) const;
 	void checkNumberOperand(const Token& op, const Value& operand) const;
 	void checkNumberOperands(const Token& op, const Value& left, const Value& right) const;
@@ -49,7 +49,6 @@ private:
 	Value addValues(const Token& op, const Value& left, const Value& right) const;
 	bool isTruthy(const Value& value) const;
 
-	mutable Environment globals;
 	mutable std::unique_ptr<Environment> environment;
 	mutable Value currentResult;
 };

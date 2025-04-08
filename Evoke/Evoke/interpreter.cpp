@@ -2,6 +2,8 @@
 #include "interpreter.h"
 #include "vous.h"
 #include "nativefunctions.h"
+#include "VousFunction.h"
+#include "vouscallable.h"
 
 
 Interpreter::Interpreter() : environment(std::make_unique<Environment>())
@@ -196,6 +198,19 @@ void Interpreter::visit(const GroupingExpr& expr) const
 void Interpreter::visit(const ExpressionStmt& stmt) const
 {
 	evaluate(*stmt.expr);
+}
+
+void Interpreter::visit(const FunctionStmt& stmt) const
+{
+	//	clone returns unique_ptr<Stmt> and cast back to FunctionStmt
+	std::unique_ptr<FunctionStmt> functionAst(
+		static_cast<FunctionStmt*>(stmt.clone().release())
+	);
+
+	// Now wrap it in your runtime callable object (like LoxFunction in Java)
+	std::shared_ptr<VousFunction> function = std::make_shared<VousFunction>(std::move(functionAst));
+
+	environment->defineVariable(stmt.name.lexeme, Value(function));
 }
 
 void Interpreter::visit(const PrintStmt& stmt) const

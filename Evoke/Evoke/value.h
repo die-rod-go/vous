@@ -36,7 +36,7 @@ public:
 			return std::to_string(getDouble());
 			break;
 		case Type::FUNCTION:
-			return "FUNCTION";
+			return getFunction()->toString();
 			break;
 		}
 

@@ -18,7 +18,9 @@ class Stmt {
 public:
 	virtual ~Stmt() = default;
 	virtual void accept(const StmtVisitor& visitor) const = 0;
+	virtual std::unique_ptr<Stmt> clone() const = 0;
 };
+
 
 class PrintStmt : public Stmt {
 public:
@@ -29,6 +31,10 @@ public:
 
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
+	}
+
+	std::unique_ptr<Stmt> clone() const override {
+		return std::make_unique<PrintStmt>(expr->clone());
 	}
 };
 
@@ -41,6 +47,10 @@ public:
 
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
+	}
+
+	std::unique_ptr<Stmt> clone() const override {
+		return std::make_unique<ExpressionStmt>(expr->clone());
 	}
 };
 
@@ -55,34 +65,48 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
+
+	std::unique_ptr<Stmt> clone() const override {
+		return std::make_unique<ByteStmt>(name, initializer ? initializer->clone() : nullptr);
+	}
 };
 
 class ArrayStmt : public Stmt {
 public:
 	Token name;
 
-	ArrayStmt(Token name)
-		: name(name) {}
+	ArrayStmt(Token name) : name(name) {}
 
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
-};
 
-class BlockStmt : public Stmt
-{
-public:
-	std::vector<std::unique_ptr<Stmt>> stmts;
-	BlockStmt(std::vector<std::unique_ptr<Stmt>> stmts) : stmts(std::move(stmts)) {}
-
-	void accept(const StmtVisitor& visitor) const override
-	{
-		visitor.visit(*this);
+	std::unique_ptr<Stmt> clone() const override {
+		return std::make_unique<ArrayStmt>(name);
 	}
 };
 
-class IfStmt : public Stmt
-{
+class BlockStmt : public Stmt {
+public:
+	std::vector<std::unique_ptr<Stmt>> stmts;
+
+	BlockStmt(std::vector<std::unique_ptr<Stmt>> stmts)
+		: stmts(std::move(stmts)) {}
+
+	void accept(const StmtVisitor& visitor) const override {
+		visitor.visit(*this);
+	}
+
+	std::unique_ptr<Stmt> clone() const override {
+		std::vector<std::unique_ptr<Stmt>> copied;
+		for (const auto& stmt : stmts) {
+			copied.push_back(stmt->clone());
+		}
+		return std::make_unique<BlockStmt>(std::move(copied));
+	}
+};
+
+class IfStmt : public Stmt {
 public:
 	std::unique_ptr<Expr> condition;
 	std::unique_ptr<Stmt> thenBranch;
@@ -94,10 +118,17 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
+
+	std::unique_ptr<Stmt> clone() const override {
+		return std::make_unique<IfStmt>(
+			condition->clone(),
+			thenBranch->clone(),
+			elseBranch ? elseBranch->clone() : nullptr
+			);
+	}
 };
 
-class WhileStmt : public Stmt
-{
+class WhileStmt : public Stmt {
 public:
 	std::unique_ptr<Expr> condition;
 	std::unique_ptr<Stmt> body;
@@ -108,14 +139,21 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
+
+	std::unique_ptr<Stmt> clone() const override {
+		return std::make_unique<WhileStmt>(
+			condition->clone(),
+			body->clone()
+			);
+	}
 };
 
-class FunctionStmt : public Stmt
-{
+class FunctionStmt : public Stmt {
 public:
 	Token name;
 	std::vector<Token> params;
 	std::vector<std::unique_ptr<Stmt>> body;
+
 	FunctionStmt(Token name, std::vector<Token> params, std::vector<std::unique_ptr<Stmt>> body)
 		: name(name), params(params), body(std::move(body)) {}
 
@@ -123,4 +161,11 @@ public:
 		visitor.visit(*this);
 	}
 
+	std::unique_ptr<Stmt> clone() const override {
+		std::vector<std::unique_ptr<Stmt>> copiedBody;
+		for (const auto& stmt : body) {
+			copiedBody.push_back(stmt->clone());
+		}
+		return std::make_unique<FunctionStmt>(name, params, std::move(copiedBody));
+	}
 };
