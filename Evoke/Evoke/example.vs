@@ -1,7 +1,8 @@
 fn test()
 {
-	print(x);
+	println("hi");
 }
 
-var x = 10;
+println("hey");
 test();
+println("hey 2");

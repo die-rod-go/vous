@@ -8,14 +8,14 @@
 
 Interpreter::Interpreter() : environment(std::make_unique<Environment>())
 {
-	environment->defineVariable("clock", Value(std::make_shared<ClockFunction>()));
-	environment->defineVariable("print", Value(std::make_shared<PrintFunction>()));
-	environment->defineVariable("println", Value(std::make_shared<PrintLineFunction>()));
-	environment->defineVariable("input", Value(std::make_shared<InputFunction>()));
-	environment->defineVariable("num", Value(std::make_shared<ConvertToNumberFunction>()));
-	environment->defineVariable("str", Value(std::make_shared<ConvertToStringFunction>()));
+	globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
+	globals.defineVariable("print", Value(std::make_shared<PrintFunction>()));
+	globals.defineVariable("println", Value(std::make_shared<PrintLineFunction>()));
+	globals.defineVariable("input", Value(std::make_shared<InputFunction>()));
+	globals.defineVariable("num", Value(std::make_shared<ConvertToNumberFunction>()));
+	globals.defineVariable("str", Value(std::make_shared<ConvertToStringFunction>()));
 
-	//globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
+	environment = std::make_unique<Environment>(globals);
 
 }
 
@@ -210,7 +210,6 @@ void Interpreter::visit(const FunctionStmt& stmt) const
 		static_cast<FunctionStmt*>(stmt.clone().release())
 	);
 
-	// Now wrap it in your runtime callable object (like LoxFunction in Java)
 	std::shared_ptr<VousFunction> function = std::make_shared<VousFunction>(std::move(functionAst));
 
 	environment->defineVariable(stmt.name.lexeme, Value(function));
