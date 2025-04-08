@@ -7,6 +7,9 @@
 Interpreter::Interpreter() : environment(std::make_unique<Environment>())
 {
 	environment->defineVariable("clock", Value(std::make_shared<ClockFunction>()));
+	environment->defineVariable("print", Value(std::make_shared<PrintFunction>()));
+	environment->defineVariable("println", Value(std::make_shared<PrintLineFunction>()));
+	environment->defineVariable("input", Value(std::make_shared<InputFunction>()));
 	globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
 
 }

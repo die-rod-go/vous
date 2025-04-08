@@ -25,8 +25,9 @@ var after = clock();
 
 for(var i = 0; i < length; i = i + 1)
 {
-	print array[i];
+	println(array[i]);
 }
-print "
-";
-print after - before;
+
+print("Time taken: ");
+print(after - before);
+print(" seconds");

@@ -70,7 +70,7 @@ std::unique_ptr<Stmt> Parser::statement()
 {
 	if (match({ FOR })) return forStatement();
 	if (match({ IF })) return ifStatement();
-	if (match({ PRINT })) return printStatement();
+	//if (match({ PRINT })) return printStatement();
 	if (match({ WHILE })) return whileStatement();
 	if (match({ LEFT_BRACE })) return blockStatement();
 
@@ -402,8 +402,8 @@ std::unique_ptr<Expr> Parser::primary()
 		return std::make_unique<VariableExpr>(previous());
 	}
 
-	if (match({ INPUT }))
-		return std::make_unique<InputExpr>();
+	//if (match({ INPUT }))
+	//	return std::make_unique<InputExpr>();
 
 	if (match({ LEFT_PAREN }))
 	{

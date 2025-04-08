@@ -3,9 +3,9 @@
 
 const std::unordered_map<std::string, TokenType> Scanner::keywords = {
 	{"var", VAR},
-	{"print", PRINT},
+	//{"print", PRINT},
 	{"[]", ARRAY},
-	{"input", INPUT},
+	//{"input", INPUT},
 	{"true", TRUE},
 	{"false", FALSE},
 	{"if", IF},
