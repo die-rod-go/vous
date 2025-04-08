@@ -11,6 +11,7 @@ public:
 	virtual void visit(const class BlockStmt& stmt) const = 0;
 	virtual void visit(const class IfStmt& stmt) const = 0;
 	virtual void visit(const class WhileStmt& stmt) const = 0;
+	virtual void visit(const class FunctionStmt& stmt) const = 0;
 };
 
 class Stmt {
@@ -107,4 +108,19 @@ public:
 	void accept(const StmtVisitor& visitor) const override {
 		visitor.visit(*this);
 	}
+};
+
+class FunctionStmt : public Stmt
+{
+public:
+	Token name;
+	std::vector<Token> params;
+	std::vector<std::unique_ptr<Stmt>> body;
+	FunctionStmt(Token name, std::vector<Token> params, std::vector<std::unique_ptr<Stmt>> body)
+		: name(name), params(params), body(std::move(body)) {}
+
+	void accept(const StmtVisitor& visitor) const override {
+		visitor.visit(*this);
+	}
+
 };

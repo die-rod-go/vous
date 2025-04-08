@@ -11,7 +11,8 @@ const std::unordered_map<std::string, TokenType> Scanner::keywords = {
 	{"if", IF},
 	{"else", ELSE},
 	{"while", WHILE},
-	{"for",  FOR}
+	{"for",  FOR},
+	{"fn", FN}
 };
 
 Scanner::Scanner(std::string source) : source(source), start(0), current(0), line(1), currentOnLine(0) {}

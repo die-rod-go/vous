@@ -23,6 +23,10 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse()
 std::unique_ptr<Stmt> Parser::declaration()
 {
 	try {
+		if (match({ FN }))
+		{
+			return functionStatement("function");
+		}
 		if (match({ VAR }))
 		{
 			if (match({ ARRAY }))
@@ -191,6 +195,35 @@ std::unique_ptr<Stmt> Parser::forStatement()
 std::unique_ptr<Expr> Parser::expression()
 {
 	return assignment();
+}
+
+std::unique_ptr<Stmt> Parser::functionStatement(const std::string& kind)
+{
+	int maxParameters = 255;
+
+	Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+	consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+	std::vector<Token> parameters;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			if (parameters.size() >= maxParameters)
+				Vous::error(peek(), "Can't have more than 255 parameters");
+			parameters.push_back(
+				consume(IDENTIFIER, "Expect parameter name.")
+			);
+		} while (match({ COMMA }));
+	}
+	consume(RIGHT_PAREN, "Expect ')' after parameters.");
+
+	consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+
+	std::unique_ptr<Stmt> block = blockStatement();
+	auto* blockStmt = dynamic_cast<BlockStmt*>(block.get());
+	std::vector<std::unique_ptr<Stmt>> body = std::move(blockStmt->stmts);
+
+	return std::make_unique<FunctionStmt>(name, parameters, std::move(body));
 }
 
 std::unique_ptr<Expr> Parser::assignment()

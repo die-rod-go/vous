@@ -29,6 +29,7 @@ public:
 
 	//	stmts
 	void visit(const ExpressionStmt& stmt) const override;
+	void visit(const FunctionStmt& stmt) const override {};
 	void visit(const PrintStmt& stmt) const override;
 	void visit(const ByteStmt& stmt) const override;
 	void visit(const ArrayStmt& stmt) const override;
