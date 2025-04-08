@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono> 
 #include "value.h"
+#include "errors.h"
 
 class VousCallable;
 class Interpreter;
@@ -91,4 +92,43 @@ public:
 		return "<native fn>";
 	}
 
+};
+
+class ConvertToStringFunction : public VousCallable
+{
+public:
+	Value call(const Interpreter& interpreter, std::vector<Value>& arguments) const override
+	{
+		return Value(arguments[0].toString());
+	}
+
+	int getArity() const override
+	{
+		return 1;
+	}
+
+	std::string toString() const override
+	{
+		return "<native fn>";
+	}
+
+};
+
+class ConvertToNumberFunction : public VousCallable
+{
+public:
+	Value call(const Interpreter& interpreter, std::vector<Value>& arguments) const override
+	{
+		return Value(std::stod(arguments[0].toString()));
+	}
+
+	int getArity() const override
+	{
+		return 1;
+	}
+
+	std::string toString() const override
+	{
+		return "<native fn>";
+	}
 };

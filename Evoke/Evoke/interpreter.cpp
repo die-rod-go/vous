@@ -12,7 +12,10 @@ Interpreter::Interpreter() : environment(std::make_unique<Environment>())
 	environment->defineVariable("print", Value(std::make_shared<PrintFunction>()));
 	environment->defineVariable("println", Value(std::make_shared<PrintLineFunction>()));
 	environment->defineVariable("input", Value(std::make_shared<InputFunction>()));
-	globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
+	environment->defineVariable("num", Value(std::make_shared<ConvertToNumberFunction>()));
+	environment->defineVariable("str", Value(std::make_shared<ConvertToStringFunction>()));
+
+	//globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
 
 }
 
