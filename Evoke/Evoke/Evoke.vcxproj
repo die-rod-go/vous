@@ -131,30 +131,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ASTPrinter.cpp" />
-    <ClCompile Include="environment.cpp" />
-    <ClCompile Include="vous.cpp" />
-    <ClCompile Include="interpreter.cpp" />
+    <ClCompile Include="Environment.cpp" />
+    <ClCompile Include="Vous.cpp" />
+    <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="parser.cpp" />
-    <ClCompile Include="scanner.cpp" />
-    <ClCompile Include="token.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Scanner.cpp" />
+    <ClCompile Include="Token.cpp" />
     <ClCompile Include="VousFunction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASTPrinter.h" />
-    <ClInclude Include="environment.h" />
-    <ClInclude Include="errors.h" />
-    <ClInclude Include="nativefunctions.h" />
-    <ClInclude Include="vous.h" />
-    <ClInclude Include="interpreter.h" />
-    <ClInclude Include="expr.h" />
-    <ClInclude Include="parser.h" />
-    <ClInclude Include="scanner.h" />
-    <ClInclude Include="stmt.h" />
-    <ClInclude Include="token.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="value.h" />
-    <ClInclude Include="vouscallable.h" />
+    <ClInclude Include="Environment.h" />
+    <ClInclude Include="Errors.h" />
+    <ClInclude Include="NativeFunctions.h" />
+    <ClInclude Include="Vous.h" />
+    <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="Expr.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="Scanner.h" />
+    <ClInclude Include="Stmt.h" />
+    <ClInclude Include="Token.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Value.h" />
+    <ClInclude Include="VousCallable.h" />
     <ClInclude Include="VousFunction.h" />
   </ItemGroup>
   <ItemGroup>

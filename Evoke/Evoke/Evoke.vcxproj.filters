@@ -18,25 +18,25 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scanner.cpp">
+    <ClCompile Include="Scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="token.cpp">
+    <ClCompile Include="Token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vous.cpp">
+    <ClCompile Include="Vous.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ASTPrinter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="parser.cpp">
+    <ClCompile Include="Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="environment.cpp">
+    <ClCompile Include="Environment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter.cpp">
+    <ClCompile Include="Interpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VousFunction.cpp">
@@ -44,46 +44,46 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="scanner.h">
+    <ClInclude Include="Scanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="token.h">
+    <ClInclude Include="Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
+    <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vous.h">
+    <ClInclude Include="Vous.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="expr.h">
+    <ClInclude Include="Expr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ASTPrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="parser.h">
+    <ClInclude Include="Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stmt.h">
+    <ClInclude Include="Stmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="errors.h">
+    <ClInclude Include="Errors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="environment.h">
+    <ClInclude Include="Environment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter.h">
+    <ClInclude Include="Interpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="value.h">
+    <ClInclude Include="Value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vouscallable.h">
+    <ClInclude Include="VousCallable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nativefunctions.h">
+    <ClInclude Include="NativeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VousFunction.h">
