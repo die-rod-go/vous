@@ -1,106 +1,191 @@
 #include "environment.h"
 
-//	defines a new variable in the current environment
+/**
+ * @brief Creates a named Variable-Value pair in the value map in the current environment.
+ *
+ * @param name The name of the variable the Value will be bound to.
+ * @param value The Value to put in the environment map.
+ */
 void Environment::defineVariable(const std::string& name, Value value)
 {
 	values[name] = value;
 }
 
-//	assigns a variable in the current environments
-//	recursivley checks enclosing environments until variable is assigned
-//	or error is thrown
+/**
+ * @brief Assigns a value to a variable in the environment chain.
+ *
+ * Searches for the variable in the current and enclosing environments,
+ * and assigns the value if found. Throws a RuntimeError if the variable
+ * is not found in any environment.
+ *
+ * @param name The token containing the name of the variable to assign the value to.
+ * @param value The Value to assign to the variable.
+ * @throws RuntimeError If the variable is not found in any environment.
+ */
 void Environment::assignVariable(Token name, Value value)
 {
-	//	check if variable exists in this environment
+	// Check if variable exists in this environment
 	if (values.find(name.lexeme) != values.end())
 	{
-		//	set the value and return
+		// Set the value and return
 		values[name.lexeme] = value;
 		return;
 	}
 
-	//	if variable not found (above does not return)
-	//	then check if enclosing environment exists
+	// if variable not found (above does not return)
+	// Then check if enclosing environment exists
 	if (enclosing != nullptr)
 	{
-		//	try to assign variable in enclosing environment and return
+		// Try to assign variable in enclosing environment and return
 		enclosing->assignVariable(name, value);
 		return;
 	}
 
-	//	variable not found in any environment. error
+	// ERROR. Variable not found in any environment.
 	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
-//	gets a variable from the current environments
-//	recursivley checks enclosing environments until variable is found
-//	or error is thrown
+/**
+ * @brief Retrieves the value of a variable from the environment chain.
+ *
+ * Searches for the variable in the current and enclosing environments
+ * until found. Throws a RuntimeError if the variable is not found.
+ *
+ * @param name The token representing the variable name.
+ * @return The value associated with the variable.
+ * @throws RuntimeError If the variable is not found in any environment.
+ */
 Value Environment::getVariable(Token name) const
 {
-	//	check if variable exists in this environment
+	// Check if variable exists in this environment
 	if (values.find(name.lexeme) != values.end())
 	{
-		//	return it if it does
+		// return it if it does
 		return values.at(name.lexeme);
 	}
 
-	//	if variable not found (above does not return)
-	//	then check if enclosing environment exists
+	// if variable not found (above does not return)
+	// Then check if enclosing environment exists
 	if (enclosing.get() != nullptr)
-		//	search for variable in enclosing environment
+		// Search for variable in enclosing environment
 		return enclosing->getVariable(name);
 
-	//	variable not found in any environment. error
+	// ERROR. Variable not found in any environment.
 	throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
-	return double();
 }
 
-//	defines a new array in current environment
+/**
+ * @brief Defines a new array in the current environment.
+ *
+ * Creates a new empty array and binds it to the given name.
+ *
+ * @param name The name of the array to define.
+ */
 void Environment::defineArray(const std::string& name)
 {
 	arrayMap[name] = std::vector<Value>();
 }
 
-//	pushes a variable to an array in the current environments
-//	recursivley checks enclosing environments until value
-//	is pushed or error is thrown
+/**
+ * @brief Pushes a value to an array in the environment chain.
+ *
+ * Searches for the array in the current and enclosing environments
+ * and pushes the value if found. Throws a RuntimeError if the array
+ * is not found in any environment.
+ *
+ * @param name The token representing the name of the array.
+ * @param value The value to push to the array.
+ * @throws RuntimeError If the array is not found in any environment.
+ */
 void Environment::pushArray(Token name, Value value)
 {
-	//	check if array exists in this environment
+	// Check if array exists in this environment
 	if (arrayMap.find(name.lexeme) != arrayMap.end())
 	{
-		//	push to it if it does
+		// Push to it if it does
 		arrayMap[name.lexeme].push_back(value);
 		return;
 	}
 
-	//	if array not found (above does not return)
-	//	then check if enclosing environment exists
+	// if array not found (above does not return)
+	// then check if enclosing environment exists
 	if (enclosing != nullptr)
 	{
-		//	try to push to array in enclosing environment and return
+		// Try to push to array in enclosing environment and return
 		enclosing->pushArray(name, value);
 		return;
 	}
 
-	//	array not found in any environment. error
+	// ERROR. Array not found in any environment
 	throw RuntimeError(name, "Undefined array '" + name.lexeme + "'.");
 }
 
-//	assigns a element in an array in the current environments
-//	recursivley checks enclosing environments until element is assigned
-//	or error is thrown
+/**
+ * @brief Assigns a value to a specific index in an array in the environment chain.
+ *
+ * Searches for the array in the current and enclosing environments and
+ * assigns the value at the given index if found. Throws a RuntimeError
+ * if the array is not found or if the index is out of bounds.
+ *
+ * @param name The token representing the name of the array.
+ * @param index The index of the array element to assign.
+ * @param value The value to assign to the array element.
+ * @throws RuntimeError If the array is not found or the index is out of bounds.
+ */
 void Environment::setArrayElement(Token name, int index, Value value)
 {
-	//	check if array exists in this environment
+	// if array exists in this environment
 	if (arrayMap.find(name.lexeme) != arrayMap.end())
 	{
-		//	check if index is in bounds
+		// if index is in bounds
 		if (index >= 0 && index < arrayMap[name.lexeme].size())
 		{
-			//	assign value in array
+			// assign value in array
 			arrayMap[name.lexeme][index] = value;
 			return;
+		}
+		else
+		{
+			// ERROR. out of bounds
+			throw RuntimeError(name, "Index out of bounds for array '" + name.lexeme + "'.");
+		}
+	}
+
+	// if array not found (above does not return)
+	// then check if enclosing environment exists
+	if (enclosing != nullptr)
+	{
+		// Attempt to assign variable in array in enclosing environment
+		enclosing->setArrayElement(name, index, value);
+		return;
+	}
+
+	// ERROR. Array not found in any environment
+	throw RuntimeError(name, "Undefined array '" + name.lexeme + "'.");
+}
+
+/**
+ * @brief Retrieves a value from a specific index in an array.
+ *
+ * Searches for the array in the current and enclosing environments
+ * and retrieves the value at the given index if found. Throws a RuntimeError
+ * if the array is not found or if the index is out of bounds.
+ *
+ * @param name The token representing the name of the array.
+ * @param index The index of the element to retrieve.
+ * @return The value at the specified index in the array.
+ * @throws RuntimeError If the array is not found or the index is out of bounds.
+ */
+Value Environment::getArrayElement(Token name, int index)
+{
+	// check if array exists in this environment
+	if (arrayMap.find(name.lexeme) != arrayMap.end())
+	{
+		// check if index is in bounds
+		if (index >= 0 && index < arrayMap[name.lexeme].size())
+		{
+			// return the element
+			return arrayMap[name.lexeme][index];
 		}
 		else
 		{
@@ -109,46 +194,12 @@ void Environment::setArrayElement(Token name, int index, Value value)
 		}
 	}
 
-	//	if array not found (above does not return)
-	//	then check if enclosing environment exists
+	// if array not found (above does not return)
+	// then check if enclosing environment exists
 	if (enclosing != nullptr)
-	{
-		//	attempt to assign variable in array in enclosing environment
-		enclosing->setArrayElement(name, index, value);
-		return;
-	}
-
-	//	array not found in any environment. error
-	throw RuntimeError(name, "Undefined array '" + name.lexeme + "'.");
-}
-
-//	gets an element in an array in the current environments
-//	recursivley checks enclosing environments until array element is found
-//	or error is thrown
-Value Environment::getArrayElement(Token name, int index)
-{
-	//	check if array exists in this environment
-	if (arrayMap.find(name.lexeme) != arrayMap.end())
-	{
-		//	check if index is in bounds
-		if (index >= 0 && index < arrayMap[name.lexeme].size())
-		{
-			//	return the element
-			return arrayMap[name.lexeme][index];
-		}
-		else
-		{
-			//	error. out of bounds
-			throw RuntimeError(name, "Index out of bounds for array '" + name.lexeme + "'.");
-		}
-	}
-
-	//	if array not found (above does not return)
-	//	then check if enclosing environment exists
-	if (enclosing != nullptr)
-		//	attempt to find element in enclosing environment
+		// attempt to find element in enclosing environment
 		return enclosing->getArrayElement(name, index);
 
-	//	array not found in any environment. error
+	// ERROR. Array not found in any environment
 	throw RuntimeError(name, "Undefined array '" + name.lexeme + "'.");
 }

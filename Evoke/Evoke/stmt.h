@@ -1,3 +1,8 @@
+/*
+This file defines all the different stmt nodes that could exist
+as well as an abstract visitor class to visit the nodes
+*/
+
 #pragma once
 #include "expr.h"
 #include <memory>
@@ -6,7 +11,7 @@ class StmtVisitor {
 public:
 	virtual void visit(const class PrintStmt& stmt) const = 0;
 	virtual void visit(const class ExpressionStmt& stmt) const = 0;
-	virtual void visit(const class ByteStmt& stmt) const = 0;
+	virtual void visit(const class VariableStmt& stmt) const = 0;
 	virtual void visit(const class ArrayStmt& stmt) const = 0;
 	virtual void visit(const class BlockStmt& stmt) const = 0;
 	virtual void visit(const class IfStmt& stmt) const = 0;
@@ -54,12 +59,12 @@ public:
 	}
 };
 
-class ByteStmt : public Stmt {
+class VariableStmt : public Stmt {
 public:
 	Token name;
 	std::unique_ptr<Expr> initializer;
 
-	ByteStmt(Token name, std::unique_ptr<Expr> initializer)
+	VariableStmt(Token name, std::unique_ptr<Expr> initializer)
 		: name(name), initializer(std::move(initializer)) {}
 
 	void accept(const StmtVisitor& visitor) const override {
@@ -67,7 +72,7 @@ public:
 	}
 
 	std::unique_ptr<Stmt> clone() const override {
-		return std::make_unique<ByteStmt>(name, initializer ? initializer->clone() : nullptr);
+		return std::make_unique<VariableStmt>(name, initializer ? initializer->clone() : nullptr);
 	}
 };
 

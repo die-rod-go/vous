@@ -222,7 +222,7 @@ void Interpreter::visit(const PrintStmt& stmt) const
 	std::cout << value.toString() << "\n";
 }
 
-void Interpreter::visit(const ByteStmt& stmt) const
+void Interpreter::visit(const VariableStmt& stmt) const
 {
 	Value value;
 	if (stmt.initializer != nullptr)

@@ -1,8 +1,11 @@
-fn test()
+fn test(param)
 {
-	println("hi");
+	println(param);
 }
 
-println("hey");
-test();
-println("hey 2");
+var idk;
+idk = test;
+idk("hi");
+test("hi kevin!");
+print("testing!");
+

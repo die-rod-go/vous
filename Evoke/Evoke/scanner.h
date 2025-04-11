@@ -29,7 +29,8 @@ private:
 	void scanToken();
 	char advance();
 	void addToken(TokenType type, Value literal);
-	bool match(char expected);	//	checks if two characters are equal, advances if they are
+	//	checks if two characters are equal, advances if they are
+	bool match(char expected);
 	char peek();
 	char peekNext();
 
@@ -42,6 +43,7 @@ private:
 
 	static const std::unordered_map<std::string, TokenType> keywords;
 
-	// debug
+	//	debug
+	//	prints the lexed program with debug information
 	void printCurrent();
 };

@@ -1,7 +1,42 @@
 #include "parser.h"
 #include "vous.h"
+#include <string>
 
 Parser::Parser(std::vector<Token> tokens) : tokens(std::move(tokens)), current(0) {}
+
+bool Parser::isAtEnd()
+{
+	return peek().type == END_OF_FILE;
+}
+
+Token Parser::advance()
+{
+	if (!isAtEnd()) current++;
+	return previous();
+}
+
+Token Parser::previous()
+{
+	return tokens[current - 1];
+}
+
+Token Parser::peek()
+{
+	return tokens[current];
+}
+
+bool Parser::match(std::initializer_list<TokenType> types)
+{
+	for (auto type : types)
+	{
+		if (check(type))
+		{
+			advance();
+			return true;
+		}
+	}
+	return false;
+}
 
 std::vector<std::unique_ptr<Stmt>> Parser::parse()
 {
@@ -44,6 +79,57 @@ std::unique_ptr<Stmt> Parser::declaration()
 	}
 }
 
+std::unique_ptr<Stmt> Parser::expressionStatement()
+{
+	std::unique_ptr<Expr> expr = expression();
+	consume(SEMICOLON, "Expect ';' after expression.");
+	return std::make_unique<ExpressionStmt>(std::move(expr));
+}
+
+std::unique_ptr<Expr> Parser::expression()
+{
+	return assignment();
+}
+
+std::unique_ptr<Expr> Parser::assignment()
+{
+	std::unique_ptr<Expr> expr = logical();
+
+	if (match({ ARROW }))
+	{
+		Token arrow = previous();
+		std::unique_ptr<Expr> value = assignment();
+		if (VariableExpr* variable = dynamic_cast<VariableExpr*>(expr.get()))
+		{
+			Token name = variable->name;
+			return std::make_unique<ArrayPushExpr>(name, std::move(value));
+		}
+	}
+
+	if (match({ EQUAL }))
+	{
+		Token equals = previous();
+		std::unique_ptr<Expr> value = assignment();
+
+		if (ArrayAccessExpr* arrayAccess = dynamic_cast<ArrayAccessExpr*>(expr.get()))
+		{
+			Token name = arrayAccess->name;
+			std::unique_ptr<Expr> index = std::move(arrayAccess->index);
+			return std::make_unique<ArraySetExpr>(name, std::move(index), std::move(value));
+		}
+
+		//	instanceof (dirty idc)
+		if (VariableExpr* variable = dynamic_cast<VariableExpr*>(expr.get()))
+		{
+			Token name = variable->name;
+			return std::make_unique<AssignmentExpr>(name, std::move(value));
+		}
+
+		Vous::error(equals, "Invalid assignment target.");
+	}
+	return expr;
+}
+
 std::unique_ptr<Stmt> Parser::varDeclaration()
 {
 	Token name = consume(IDENTIFIER, "Expect variable name.");
@@ -56,7 +142,7 @@ std::unique_ptr<Stmt> Parser::varDeclaration()
 
 	consume(SEMICOLON, "Expect ';' after variable declaration");
 
-	return std::make_unique<ByteStmt>(name, std::move(initializer));
+	return std::make_unique<VariableStmt>(name, std::move(initializer));
 }
 
 std::unique_ptr<Stmt> Parser::arrDeclaration()
@@ -82,13 +168,6 @@ std::unique_ptr<Stmt> Parser::printStatement()
 	std::unique_ptr<Expr> value = expression();
 	consume(SEMICOLON, "Expect ';' after value.");
 	return std::make_unique<PrintStmt>(std::move(value));
-}
-
-std::unique_ptr<Stmt> Parser::expressionStatement()
-{
-	std::unique_ptr<Expr> expr = expression();
-	consume(SEMICOLON, "Expect ';' after expression.");
-	return std::make_unique<ExpressionStmt>(std::move(expr));
 }
 
 std::unique_ptr<Stmt> Parser::blockStatement()
@@ -192,11 +271,6 @@ std::unique_ptr<Stmt> Parser::forStatement()
 	return body;
 }
 
-std::unique_ptr<Expr> Parser::expression()
-{
-	return assignment();
-}
-
 std::unique_ptr<Stmt> Parser::functionStatement(const std::string& kind)
 {
 	int maxParameters = 255;
@@ -209,7 +283,7 @@ std::unique_ptr<Stmt> Parser::functionStatement(const std::string& kind)
 		do
 		{
 			if (parameters.size() >= maxParameters)
-				Vous::error(peek(), "Can't have more than 255 parameters");
+				Vous::error(peek(), "Can't have more than " + std::to_string(maxParameters) + " parameters");
 			parameters.push_back(
 				consume(IDENTIFIER, "Expect parameter name.")
 			);
@@ -224,45 +298,6 @@ std::unique_ptr<Stmt> Parser::functionStatement(const std::string& kind)
 	std::vector<std::unique_ptr<Stmt>> body = std::move(blockStmt->stmts);
 
 	return std::make_unique<FunctionStmt>(name, parameters, std::move(body));
-}
-
-std::unique_ptr<Expr> Parser::assignment()
-{
-	std::unique_ptr<Expr> expr = logical();
-
-	if (match({ ARROW }))
-	{
-		Token arrow = previous();
-		std::unique_ptr<Expr> value = assignment();
-		if (VariableExpr* variable = dynamic_cast<VariableExpr*>(expr.get()))
-		{
-			Token name = variable->name;
-			return std::make_unique<ArrayPushExpr>(name, std::move(value));
-		}
-	}
-
-	if (match({ EQUAL }))
-	{
-		Token equals = previous();
-		std::unique_ptr<Expr> value = assignment();
-
-		if (ArrayAccessExpr* arrayAccess = dynamic_cast<ArrayAccessExpr*>(expr.get()))
-		{
-			Token name = arrayAccess->name;
-			std::unique_ptr<Expr> index = std::move(arrayAccess->index);
-			return std::make_unique<ArraySetExpr>(name, std::move(index), std::move(value));
-		}
-
-		//	instanceof (dirty idc)
-		if (VariableExpr* variable = dynamic_cast<VariableExpr*>(expr.get()))
-		{
-			Token name = variable->name;
-			return std::make_unique<AssignmentExpr>(name, std::move(value));
-		}
-
-		Vous::error(equals, "Invalid assignment target.");
-	}
-	return expr;
 }
 
 std::unique_ptr<Expr> Parser::logical()
@@ -416,44 +451,10 @@ std::unique_ptr<Expr> Parser::primary()
 	return nullptr;
 }
 
-bool Parser::isAtEnd()
-{
-	return peek().type == END_OF_FILE;
-}
-
-Token Parser::advance()
-{
-	if (!isAtEnd()) current++;
-	return previous();
-}
-
-Token Parser::peek()
-{
-	return tokens[current];
-}
-
-Token Parser::previous()
-{
-	return tokens[current - 1];
-}
-
 bool Parser::check(TokenType type)
 {
 	if (isAtEnd()) return false;
 	return peek().type == type;
-}
-
-bool Parser::match(std::initializer_list<TokenType> types)
-{
-	for (auto type : types)
-	{
-		if (check(type))
-		{
-			advance();
-			return true;
-		}
-	}
-	return false;
 }
 
 //	consume expected token or report error
@@ -480,6 +481,7 @@ void Parser::synchronize()
 		case IF:
 		case WHILE:
 		case FOR:
+		case FN:
 			return;
 		}
 		advance();

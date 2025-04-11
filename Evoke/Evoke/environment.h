@@ -8,38 +8,70 @@
 #include "token.h"
 #include "stmt.h"
 
+/**
+ * @class Environment
+ * @brief Represents an environment for managing variables and arrays.
+ *
+ * The Environment class handles the definition and assignment of variables
+ * and arrays, including the ability to search and update variables and
+ * arrays across multiple nested environments.
+ */
 class Environment
 {
-private:
-	//	stores values in the current environment
-	std::unordered_map<std::string, Value> values;
-
-	//	stores current arrays (array functionality will be reworked)
-	std::unordered_map<std::string, std::vector<Value>> arrayMap;
-
 public:
+	/** Constructs an Environment with no enclosing environment */
 	Environment() : enclosing(nullptr) {}
+
+	/** Constructs an Environment with an enclosing environment */
 	Environment(std::unique_ptr<Environment> enclosing) : enclosing(std::move(enclosing)) {}
 
-	//	takes in a const reference and makes a "copy"
+	/**
+	 * @brief Custom copy constructor to handle the non-copyable unique_ptr<Environment>.
+	 *
+	 * The default copy constructor cannot copy unique_ptr members, so we explicitly
+	 * create a new std::unique_ptr for the enclosing environment if it exists. The
+	 * other members (values and arrayMap) are safely copied using the default behavior.
+	*/
 	Environment(const Environment& other)
 		:	values(other.values),
 			arrayMap(other.arrayMap),
 			enclosing(other.enclosing ? std::make_unique<Environment>(*other.enclosing) : nullptr)
 	{}
 
-	//	the environment "holding" this one
+	/** The environment "holding" this one */
 	mutable std::unique_ptr<Environment> enclosing;
 
-	// Variable handling
-	void defineVariable(const std::string& name, Value value);	//	defines a new variable in current environment
-	void assignVariable(Token name, Value value);				//	assigns a variable in the existing environments
-	Value getVariable(Token name) const;						//	get variable from existing environments
+	// ==========[ Variable handling ]===========
+	
+	/** Creates a named Variable-Value pair in the value map in the current environment. */
+	void defineVariable(const std::string& name, Value value);
 
-	//	Array handling
-	void defineArray(const std::string& name);					//	defines a new array in the current environments
-	void pushArray(Token name, Value value);					//	pushes a variable to the array in current environments
-	void setArrayElement(Token name, int index, Value value);	//	sets a value of an array element in the current environments
-	Value getArrayElement(Token name, int index);				//	gets the value of an array element in the current environments
+	/** Assigns a value to a variable in the environment chain. */
+	void assignVariable(Token name, Value value);
+
+	/** Get variable from existing environments(recursively searches) */
+	Value getVariable(Token name) const;
+
+	// ==========[ Array Handling ]===========
+	
+	/** Defines a new array in the current environment */
+	void defineArray(const std::string& name);
+
+	/** Pushes a variable to the array in the current environments(recursively searches) */
+	void pushArray(Token name, Value value);
+
+	/** Sets a value of an array element in the current environments(recursively searches) */
+	void setArrayElement(Token name, int index, Value value);
+
+	/** Gets the value of an array element in the current environments(recursively searches) */
+	Value getArrayElement(Token name, int index);
+
+private:
+	/** Holds the values in the current environment */
+	std::unordered_map<std::string, Value> values;
+
+	/** Holds the current arrays in the current environment(array functionality will be reworked) */
+	std::unordered_map<std::string, std::vector<Value>> arrayMap;
+
 };
 
