@@ -2,19 +2,11 @@
 #include "vous.h"
 #include <string>
 
-/* ============================================ */
-/*               Parser Construction            */
-/* ============================================ */
-
 /**
 * @brief Constructs a Parser with the given tokens
 * @param Vector of tokens to parse
 */
 Parser::Parser(std::vector<Token> tokens) : tokens(std::move(tokens)), current(0) {}
-
-/* ============================================ */
-/*               Main Parse Function            */
-/* ============================================ */
 
 /**
 * @brief Main parsing function that generates AST from tokens
@@ -40,10 +32,6 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse()
 	}
 	return statements;
 }
-
-/* ============================================ */
-/*            Token Navigation Helpers          */
-/* ============================================ */
 
 /**
 * @brief Checks if we've reached the end of the token stream
@@ -153,10 +141,6 @@ void Parser::synchronize()
 	}
 }
 
-/* ============================================ */
-/*            Declaration Parsing               */
-/* ============================================ */
-
 /**
 * @brief Parses all types of declarations
 *
@@ -254,10 +238,6 @@ std::unique_ptr<Stmt> Parser::functionStatement(const std::string& kind)
 
 	return std::make_unique<FunctionStmt>(name, parameters, std::move(body));
 }
-
-/* ============================================ */
-/*              Statement Parsing               */
-/* ============================================ */
 
 /**
 * @brief Parses any statement type
@@ -421,10 +401,6 @@ std::unique_ptr<Stmt> Parser::forStatement()
 	return body;
 }
 
-/* ============================================ */
-/*              Expression Parsing              */
-/* ============================================ */
-
 /**
 * @brief Entry point for expression parsing
 * @return Parsed expression
@@ -485,10 +461,6 @@ std::unique_ptr<Expr> Parser::assignment()
 	}
 	return expr;
 }
-
-/* ============================================ */
-/*           Expression Sub-Parsers             */
-/* ============================================ */
 
 // The following functions implement the operator precedence hierarchy
 // Each level delegates to the next higher precedence level and then
