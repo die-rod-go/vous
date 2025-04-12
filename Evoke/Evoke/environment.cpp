@@ -77,8 +77,6 @@ Value Environment::getVariable(Token name) const
 /**
  * @brief Defines a new array in the current environment.
  *
- * Creates a new empty array and binds it to the given name.
- *
  * @param name The name of the array to define.
  */
 void Environment::defineArray(const std::string& name)

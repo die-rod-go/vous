@@ -35,7 +35,17 @@ class PrintFunction : public VousCallable
 public:
 	Value call(const Interpreter& interpreter, std::vector<Value>& arguments) const override
 	{
-		std::cout << arguments[0].toString();
+		std::string str = arguments[0].toString();
+
+		// Remove trailing zeroes
+		str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+
+		// Remove trailing decimal point if it exists
+		if (!str.empty() && str.back() == '.') {
+			str.pop_back();
+		}
+
+		std::cout << str << "\n";
 		return arguments[0];
 	}
 
@@ -56,6 +66,17 @@ class PrintLineFunction : public VousCallable
 public:
 	Value call(const Interpreter& interpreter, std::vector<Value>& arguments) const override
 	{
+		std::string str = arguments[0].toString();
+
+		// Remove trailing zeroes
+		str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+
+		// Remove trailing decimal point if it exists
+		if (!str.empty() && str.back() == '.') {
+			str.pop_back();
+		}
+
+		std::cout << str << "\n";
 		std::cout << arguments[0].toString() << "\n";
 		return arguments[0];
 	}

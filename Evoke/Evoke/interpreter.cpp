@@ -6,7 +6,7 @@
 #include "vouscallable.h"
 
 
-Interpreter::Interpreter() : environment(std::make_unique<Environment>())
+Interpreter::Interpreter() : environment(std::make_shared<Environment>())
 {
 	globals.defineVariable("clock", Value(std::make_shared<ClockFunction>()));
 	globals.defineVariable("print", Value(std::make_shared<PrintFunction>()));
@@ -15,7 +15,7 @@ Interpreter::Interpreter() : environment(std::make_unique<Environment>())
 	globals.defineVariable("num", Value(std::make_shared<ConvertToNumberFunction>()));
 	globals.defineVariable("str", Value(std::make_shared<ConvertToStringFunction>()));
 
-	environment = std::make_unique<Environment>(globals);
+	environment = std::make_shared<Environment>(globals);
 
 }
 
@@ -241,34 +241,33 @@ void Interpreter::visit(const ArrayStmt& stmt) const
 
 void Interpreter::visit(const BlockStmt& stmt) const
 {
-	executeBlock(stmt, std::move(std::make_unique<Environment>()));
+	executeBlock(stmt, std::move(std::make_shared<Environment>()));
 }
 
-void Interpreter::executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const
+void Interpreter::executeBlock(const BlockStmt& stmt, std::shared_ptr<Environment> environment) const
 {
-	std::unique_ptr<Environment> previous = std::move(this->environment);
+	// Transfer ownership of current environment into previous (used to restore after block is done)
+	std::shared_ptr<Environment> previous = std::move(this->environment);
 
 	try
 	{
+		// Set the current environment to the new environment created for this block
 		this->environment = std::move(environment);
-		this->environment->enclosing = std::move(previous);
+		// Set the enclosing environment to the previous environment
+		// NO std::move() because previous needs to be able to be restored from in case this throws an exception
+		this->environment->enclosing = previous;
 
 		for (const auto& statement : stmt.stmts)
 		{
 			execute(*statement);
 		}
 
-		//	restore the previous environment
-		previous = std::move(this->environment->enclosing);
+		//	Block is over. restore the previous environment
 		this->environment = std::move(previous);
 	}
 	catch (...)
 	{
-		//	ensure environment is restored even if an exception occurs
-		if (this->environment && this->environment->enclosing) {
-			previous = std::move(this->environment->enclosing);
-		}
-		//	need to fix, potential unsafe double move of previous
+		//	Ensure environment is restored
 		this->environment = std::move(previous);
 		throw;
 	}

@@ -36,7 +36,7 @@ public:
 	void visit(const WhileStmt& stmt) const override;
 
 	mutable Environment globals;
-	void executeBlock(const BlockStmt& stmt, std::unique_ptr<Environment> environment) const;
+	void executeBlock(const BlockStmt& stmt, std::shared_ptr<Environment> environment) const;
 
 private:
 	void execute(const Stmt& stmt) const;
@@ -49,6 +49,6 @@ private:
 	Value addValues(const Token& op, const Value& left, const Value& right) const;
 	bool isTruthy(const Value& value) const;
 
-	mutable std::unique_ptr<Environment> environment;
+	mutable std::shared_ptr<Environment> environment;
 	mutable Value currentResult;
 };

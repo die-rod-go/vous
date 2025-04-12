@@ -8,6 +8,11 @@
 #include "token.h"
 #include "stmt.h"
 
+// TODO
+/*
+	rewrite to follow rule of five after revisiting necessity of copy constructor
+*/
+
 /**
  * @class Environment
  * @brief Represents an environment for managing variables and arrays.
@@ -23,7 +28,7 @@ public:
 	Environment() : enclosing(nullptr) {}
 
 	/** Constructs an Environment with an enclosing environment */
-	Environment(std::unique_ptr<Environment> enclosing) : enclosing(std::move(enclosing)) {}
+	Environment(std::shared_ptr<Environment> enclosing) : enclosing(std::move(enclosing)) {}
 
 	/**
 	 * @brief Custom copy constructor to handle the non-copyable unique_ptr<Environment>.
@@ -33,16 +38,16 @@ public:
 	 * other members (values and arrayMap) are safely copied using the default behavior.
 	*/
 	Environment(const Environment& other)
-		:	values(other.values),
-			arrayMap(other.arrayMap),
-			enclosing(other.enclosing ? std::make_unique<Environment>(*other.enclosing) : nullptr)
+		: values(other.values),
+		arrayMap(other.arrayMap),
+		enclosing(other.enclosing ? std::make_unique<Environment>(*other.enclosing) : nullptr)
 	{}
 
 	/** The environment "holding" this one */
-	mutable std::unique_ptr<Environment> enclosing;
+	mutable std::shared_ptr<Environment> enclosing;
 
 	// ==========[ Variable handling ]===========
-	
+
 	/** Creates a named Variable-Value pair in the value map in the current environment. */
 	void defineVariable(const std::string& name, Value value);
 
@@ -53,7 +58,7 @@ public:
 	Value getVariable(Token name) const;
 
 	// ==========[ Array Handling ]===========
-	
+
 	/** Defines a new array in the current environment */
 	void defineArray(const std::string& name);
 

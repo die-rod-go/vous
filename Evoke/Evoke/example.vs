@@ -1,11 +1,6 @@
-fn test(param)
+fn add (param1, param2)
 {
-	println(param);
+	println(param1 + param2);
 }
 
-var idk;
-idk = test;
-idk("hi");
-test("hi kevin!");
-print("testing!");
-
+println(3.141592653589793238);
